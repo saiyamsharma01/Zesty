@@ -1,0 +1,59 @@
+name: flutter_series
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # GetX
+  get: ^4.6.6
+  get_storage: ^2.1.1
+
+  # Responsive UI
+  flutter_screenutil: ^5.9.0
+
+  # Google Fonts
+  google_fonts: ^6.1.0
+
+  # Image Picker
+  image_picker: ^1.0.4
+
+  # Local Storage
+  shared_preferences: ^2.2.2
+
+  # Cupertino Icons
+  cupertino_icons: ^1.0.8
+
+  # Firebase
+  firebase_core: ^4.13.0
+  firebase_auth: ^6.5.7
+  cloud_firestore: ^6.8.0
+
+  # Phone Authentication
+  intl_phone_field: ^3.2.0
+
+  # Google Sign-In
+  google_sign_in: ^7.2.0
+  firebase_database: ^12.4.7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  # ============================================================
+  # ASSETS
+  # ============================================================
+
+  assets:
+    - assets/icons/google_logo.png
