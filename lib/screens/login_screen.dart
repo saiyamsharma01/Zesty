@@ -9,7 +9,9 @@ class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   static const Color zeptoPurple = Color(0xFF4C007D);
-  static const Color bgColor = Color(0xFFF8F9FA); // Very light grey for background
+  static const Color bgColor = Color(
+    0xFFF8F9FA,
+  ); // Very light grey for background
   static const Color textColor = Color(0xFF1E1E1E);
 
   @override
@@ -40,7 +42,7 @@ class LoginScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Zepty',
+                    'BlinkCart',
                     style: GoogleFonts.poppins(
                       fontSize: 42,
                       fontWeight: FontWeight.w800,
@@ -60,7 +62,7 @@ class LoginScreen extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Form Section in a Card with shadow
             Transform.translate(
               offset: const Offset(0, -20),
@@ -145,7 +147,9 @@ class LoginScreen extends StatelessWidget {
                           ],
                         ),
                         child: ElevatedButton(
-                          onPressed: controller.isLoading.value ? null : controller.login,
+                          onPressed: controller.isLoading.value
+                              ? null
+                              : controller.login,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: zeptoPurple,
                             foregroundColor: Colors.white,
@@ -155,7 +159,9 @@ class LoginScreen extends StatelessWidget {
                             ),
                           ),
                           child: controller.isLoading.value
-                              ? const CircularProgressIndicator(color: Colors.white)
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
                               : Text(
                                   'Login',
                                   style: GoogleFonts.poppins(
@@ -184,7 +190,10 @@ class LoginScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
                           'Or continue with',
-                          style: GoogleFonts.poppins(color: Colors.black54, fontSize: 13),
+                          style: GoogleFonts.poppins(
+                            color: Colors.black54,
+                            fontSize: 13,
+                          ),
                         ),
                       ),
                       const Expanded(child: Divider(color: Colors.black12)),
@@ -213,7 +222,7 @@ class LoginScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Guest Button
                   SizedBox(
                     width: double.infinity,
@@ -236,10 +245,14 @@ class LoginScreen extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: () => Get.toNamed(Routes.signup),
-                        style: TextButton.styleFrom(foregroundColor: zeptoPurple),
+                        style: TextButton.styleFrom(
+                          foregroundColor: zeptoPurple,
+                        ),
                         child: Text(
                           'Sign Up',
-                          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],
@@ -269,11 +282,17 @@ class LoginScreen extends StatelessWidget {
       style: GoogleFonts.poppins(fontSize: 15),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400, fontSize: 14),
+        hintStyle: GoogleFonts.poppins(
+          color: Colors.grey.shade400,
+          fontSize: 14,
+        ),
         prefixIcon: Icon(icon, color: Colors.grey.shade400, size: 22),
         filled: true,
         fillColor: Colors.grey.shade50,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 18,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,

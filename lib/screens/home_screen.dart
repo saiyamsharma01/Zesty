@@ -4,6 +4,9 @@ import 'package:get/get.dart';
 
 import '../controllers/auth_controller.dart';
 import '../controllers/product_controller.dart';
+import '../controllers/location_controller.dart';
+import 'category_screen.dart';
+import 'manage_products_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -11,6 +14,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final productController = Get.put(ProductController());
+    final locationController = Get.put(LocationController());
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -18,93 +22,183 @@ class HomeScreen extends StatelessWidget {
         child: CustomScrollView(
           slivers: [
             // AppBar area with Location and Profile
+            // Zepto-style Top Header
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Container(
+                padding: const EdgeInsets.only(top: 8.0, bottom: 16.0),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    // Location & Profile
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            children: [
-                              Icon(Icons.location_on, color: Colors.purple[700], size: 24),
-                              const SizedBox(width: 4),
-                              const Text(
-                                'Delivery in 10 mins',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                _showLocationBottomSheet(context, locationController);
+                              },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(Icons.location_on, color: Colors.purple[700], size: 24),
+                                      const SizedBox(width: 4),
+                                      const Text(
+                                        '6 minutes',
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w900,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Obx(() => locationController.isLoading.value 
+                                        ? const SizedBox(
+                                            width: 16, 
+                                            height: 16, 
+                                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.purple)
+                                          )
+                                        : const SizedBox.shrink()
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Obx(() => Text(
+                                          locationController.currentAddress.value,
+                                          style: const TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 14,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        )),
+                                      ),
+                                      const Icon(Icons.keyboard_arrow_down, size: 20, color: Colors.black54),
+                                      const SizedBox(width: 20), // padding for profile icon
+                                    ],
+                                  ),
+                                ],
                               ),
-                              const Icon(Icons.keyboard_arrow_down, size: 20),
-                            ],
+                            ),
                           ),
-                          const Padding(
-                            padding: EdgeInsets.only(left: 28.0),
-                            child: Text(
-                              'Home - 123, Your Street Name, City...',
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 13,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                          GestureDetector(
+                            onTap: () {
+                              final controller = Get.find<AuthController>();
+                              controller.logout();
+                            },
+                            child: const CircleAvatar(
+                              radius: 20,
+                              backgroundColor: Colors.purple,
+                              child: Icon(Icons.person, color: Colors.white),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        // Keep logout functionality from original
-                        final controller = Get.find<AuthController>();
-                        controller.logout();
-                      },
-                      child: const CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.purple,
-                        child: Icon(Icons.person, color: Colors.white),
+                    const SizedBox(height: 16),
+
+                    // Navigation Tabs
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        children: [
+                          _buildNavTab(
+                            title: 'zepto',
+                            isSelected: true,
+                            textColor: Colors.white,
+                            bgColor: Colors.purple,
+                            onTap: () {},
+                          ),
+                          const SizedBox(width: 12),
+                          _buildNavTab(
+                            title: 'select',
+                            isSelected: false,
+                            textColor: Colors.purple,
+                            bgColor: Colors.purple.shade50,
+                            onTap: () => Get.toNamed('/select'),
+                          ),
+                          const SizedBox(width: 12),
+                          _buildNavTab(
+                            title: 'Super\nMall.',
+                            isSelected: false,
+                            textColor: Colors.purple,
+                            bgColor: Colors.purple.shade50,
+                            isMultiLine: true,
+                            onTap: () => Get.toNamed('/super-mall'),
+                          ),
+                          const SizedBox(width: 12),
+                          _buildNavTab(
+                            title: 'cafe\nFrom ₹39',
+                            isSelected: false,
+                            textColor: Colors.purple,
+                            bgColor: Colors.purple.shade50,
+                            isMultiLine: true,
+                            onTap: () => Get.toNamed('/cafe'),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Search Bar
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(12.0),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.search, color: Colors.grey),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Search for "Rakhi"',
+                                style: TextStyle(color: Colors.grey, fontSize: 16),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Quick Categories Row
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildQuickCategory('assets/icons/cat_all.jpg', 'All'),
+                          _buildQuickCategory('assets/icons/cat_beauty.jpg', 'Beauty'),
+                          _buildQuickCategory('assets/icons/cat_pharmacy.jpg', 'Pharmacy'),
+                          _buildQuickCategory('assets/icons/cat_toys.jpg', 'Toys'),
+                          _buildQuickCategory('assets/icons/cat_mobiles.jpg', 'Mobiles'),
+                          _buildQuickCategory('assets/icons/cat_home.jpg', 'Home'),
+                          _buildQuickCategory('assets/icons/cat_fresh.jpg', 'Fresh'),
+                          _buildQuickCategory('assets/icons/cat_electronics.jpg', 'Electronics'),
+                          _buildQuickCategory('assets/icons/cat_home.jpg', 'Grocery'),
+                          _buildQuickCategory('assets/icons/cat_beauty.jpg', 'Fashion'),
+                          _buildQuickCategory('assets/icons/cat_toys.jpg', 'Sports'),
+                        ],
                       ),
                     ),
                   ],
-                ),
-              ),
-            ),
-            
-            // Search Bar
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(12.0),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.search, color: Colors.grey),
-                      const SizedBox(width: 8),
-                      const Expanded(
-                        child: Text(
-                          'Search for "milk"',
-                          style: TextStyle(color: Colors.grey, fontSize: 16),
-                        ),
-                      ),
-                      Container(
-                        height: 24,
-                        width: 1,
-                        color: Colors.grey.shade300,
-                        margin: const EdgeInsets.symmetric(horizontal: 8),
-                      ),
-                      const Icon(Icons.mic, color: Colors.purple),
-                    ],
-                  ),
                 ),
               ),
             ),
@@ -113,98 +207,18 @@ class HomeScreen extends StatelessWidget {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  height: 150,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16.0),
-                    gradient: LinearGradient(
-                      colors: [Colors.purple.shade300, Colors.purple.shade700],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'Free Delivery on your first order!',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16.0),
+                  child: Image.asset(
+                    'assets/icons/banner.jpg',
+                    height: 150,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
             ),
 
-            // Shop By Category Title
-            const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Text(
-                  'Shop By Category',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-
-            // Categories Grid
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 0.75,
-                ),
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final categories = [
-                      {'icon': Icons.apple, 'name': 'Fruits'},
-                      {'icon': Icons.local_florist, 'name': 'Vegetables'},
-                      {'icon': Icons.local_drink, 'name': 'Dairy'},
-                      {'icon': Icons.bakery_dining, 'name': 'Bakery'},
-                      {'icon': Icons.fastfood, 'name': 'Snacks'},
-                      {'icon': Icons.icecream, 'name': 'Ice Cream'},
-                      {'icon': Icons.local_pizza, 'name': 'Frozen'},
-                      {'icon': Icons.egg, 'name': 'Eggs'},
-                    ];
-                    return Column(
-                      children: [
-                        Container(
-                          height: 65,
-                          width: 65,
-                          decoration: BoxDecoration(
-                            color: Colors.purple.shade50,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Icon(
-                            categories[index]['icon'] as IconData,
-                            color: Colors.purple,
-                            size: 32,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          categories[index]['name'] as String,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                        ),
-                      ],
-                    );
-                  },
-                  childCount: 8,
-                ),
-              ),
-            ),
 
             // Trending Near You Title
             const SliverToBoxAdapter(
@@ -350,6 +364,195 @@ class HomeScreen extends StatelessWidget {
           BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Cart'),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Get.to(() => const ManageProductsScreen());
+        },
+        backgroundColor: Colors.purple,
+        icon: const Icon(Icons.admin_panel_settings, color: Colors.white),
+        label: const Text('Manage Products', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      ),
+    );
+  }
+
+  Widget _buildNavTab({
+    required String title,
+    required bool isSelected,
+    required Color textColor,
+    required Color bgColor,
+    required VoidCallback onTap,
+    bool isMultiLine = false,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 50,
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(12),
+          border: isSelected ? null : Border.all(color: Colors.transparent),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: textColor,
+            fontWeight: FontWeight.bold,
+            fontSize: isMultiLine ? 14 : 18,
+            height: 1.1,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickCategory(String imagePath, String label) {
+    return GestureDetector(
+      onTap: () {
+        Get.to(() => CategoryScreen(categoryName: label));
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(right: 20.0),
+        child: Column(
+          children: [
+            Container(
+              height: 52,
+              width: 52,
+              decoration: BoxDecoration(
+                color: Colors.purple.shade50,
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                  image: AssetImage(imagePath),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.black87,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLocationBottomSheet(BuildContext context, LocationController controller) {
+    final TextEditingController addressController = TextEditingController(text: controller.currentAddress.value);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Enter your location',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: addressController,
+                decoration: InputDecoration(
+                  hintText: 'Enter complete address',
+                  prefixIcon: const Icon(Icons.location_city, color: Colors.purple),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Colors.purple, width: 2),
+                  ),
+                ),
+                maxLines: 2,
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {
+                    controller.updateAddress(addressController.text);
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Save Location',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    controller.getCurrentLocation();
+                  },
+                  icon: const Icon(Icons.my_location, color: Colors.purple),
+                  label: const Text(
+                    'Use Current Location',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.purple,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.purple),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
+        );
+      },
     );
   }
 }

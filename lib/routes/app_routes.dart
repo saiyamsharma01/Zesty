@@ -8,7 +8,9 @@ import '../screens/phone_auth_screen.dart';
 import '../screens/signup_screen.dart';
 import '../screens/splash_screen.dart';
 import '../screens/verify_email_screen.dart';
-
+import '../screens/select_screen.dart';
+import '../screens/super_mall_screen.dart';
+import '../screens/cafe_screen.dart';
 class Routes {
   static const String splash = '/';
   static const String login = '/login';
@@ -20,6 +22,9 @@ class Routes {
       '/verify-email';
   static const String phoneAuth = '/phone-auth';
   static const String otp = '/otp';
+  static const String select = '/select';
+  static const String superMall = '/super-mall';
+  static const String cafe = '/cafe';
 }
 
 class AppPages {
@@ -55,6 +60,18 @@ class AppPages {
     GetPage(
       name: Routes.otp,
       page: () => const OtpScreen(),
+    ),
+    GetPage(
+      name: Routes.select,
+      page: () => const SelectScreen(),
+    ),
+    GetPage(
+      name: Routes.superMall,
+      page: () => const SuperMallScreen(),
+    ),
+    GetPage(
+      name: Routes.cafe,
+      page: () => const CafeScreen(),
     ),
   ];
 }
