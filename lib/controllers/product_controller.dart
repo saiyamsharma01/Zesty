@@ -7,9 +7,19 @@ class ProductController extends GetxController {
   var products = <ProductModel>[].obs;
   var isLoading = false.obs;
   var stealDealTab = 'Trending'.obs;
+  var freshTab = 'Bouquets & Plants'.obs;
+  var clearanceSaleTab = 'Top Deals'.obs;
 
   void setStealDealTab(String tab) {
     stealDealTab.value = tab;
+  }
+
+  void setFreshTab(String tab) {
+    freshTab.value = tab;
+  }
+
+  void setClearanceSaleTab(String tab) {
+    clearanceSaleTab.value = tab;
   }
 
   @override

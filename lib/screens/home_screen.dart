@@ -663,15 +663,25 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionTitle('Buy Again'),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
+        Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
+          child: Stack(
             children: [
-              _buildTab('All Items', true),
-              _buildTab('Zepto Cafe', false),
-              _buildTab('Snacks & Drinks', false),
-              _buildTab('Sweets & Chocolates', false),
+              Positioned(
+                bottom: 0, left: 0, right: 0,
+                child: Container(height: 1.5, color: const Color(0xFFF0145A)),
+              ),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildGenericTab(title: 'All Items', isSelected: true, activeColor: const Color(0xFFF0145A), activeBgColor: const Color(0xFFFFF0F5), inactiveColor: Colors.blueGrey.shade700),
+                    _buildGenericTab(title: 'Zepto Cafe', isSelected: false, activeColor: const Color(0xFFF0145A), activeBgColor: const Color(0xFFFFF0F5), inactiveColor: Colors.blueGrey.shade700),
+                    _buildGenericTab(title: 'Snacks & Drinks', isSelected: false, activeColor: const Color(0xFFF0145A), activeBgColor: const Color(0xFFFFF0F5), inactiveColor: Colors.blueGrey.shade700),
+                    _buildGenericTab(title: 'Sweets & Chocolates', isSelected: false, activeColor: const Color(0xFFF0145A), activeBgColor: const Color(0xFFFFF0F5), inactiveColor: Colors.blueGrey.shade700),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -823,7 +833,6 @@ class _HomeScreenState extends State<HomeScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -832,15 +841,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text('Add Any 10 Items', style: TextStyle(fontSize: 13, color: Colors.black54)),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(20)),
-                child: const Row(
-                  children: [
-                    Text('Back to top', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                    SizedBox(width: 4),
-                    Icon(Icons.arrow_upward, color: Colors.white, size: 14),
-                  ],
+              const SizedBox(width: 8),
+              Expanded(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Flex(
+                      direction: Axis.horizontal,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: List.generate(
+                        (constraints.constrainWidth() / 6).floor(),
+                        (index) => SizedBox(width: 3, height: 1, child: DecoratedBox(decoration: BoxDecoration(color: Colors.grey.shade300))),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -859,14 +872,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: const Color(0xFFF0145A),
                 ),
               ),
-              Row(
+              Obx(() => Row(
                 children: [
-                  Expanded(child: Obx(() => GestureDetector(onTap: () => productController.setStealDealTab('Trending'), child: _buildStoreTab('Trending', Icons.local_fire_department, productController.stealDealTab.value == 'Trending')))),
-                  Expanded(child: Obx(() => GestureDetector(onTap: () => productController.setStealDealTab('₹9\nStore'), child: _buildStoreTab('₹9\nStore', null, productController.stealDealTab.value == '₹9\nStore')))),
-                  Expanded(child: Obx(() => GestureDetector(onTap: () => productController.setStealDealTab('₹19\nStore'), child: _buildStoreTab('₹19\nStore', null, productController.stealDealTab.value == '₹19\nStore')))),
-                  Expanded(child: Obx(() => GestureDetector(onTap: () => productController.setStealDealTab('₹29\nStore'), child: _buildStoreTab('₹29\nStore', null, productController.stealDealTab.value == '₹29\nStore')))),
+                  Expanded(child: GestureDetector(onTap: () => productController.setStealDealTab('Trending'), child: _buildStoreTab('Trending', Icons.local_fire_department, productController.stealDealTab.value == 'Trending'))),
+                  _buildSeparator(productController.stealDealTab.value, 'Trending', '₹9\nStore'),
+                  Expanded(child: GestureDetector(onTap: () => productController.setStealDealTab('₹9\nStore'), child: _buildStoreTab('₹9\nStore', null, productController.stealDealTab.value == '₹9\nStore'))),
+                  _buildSeparator(productController.stealDealTab.value, '₹9\nStore', '₹19\nStore'),
+                  Expanded(child: GestureDetector(onTap: () => productController.setStealDealTab('₹19\nStore'), child: _buildStoreTab('₹19\nStore', null, productController.stealDealTab.value == '₹19\nStore'))),
+                  _buildSeparator(productController.stealDealTab.value, '₹19\nStore', '₹29\nStore'),
+                  Expanded(child: GestureDetector(onTap: () => productController.setStealDealTab('₹29\nStore'), child: _buildStoreTab('₹29\nStore', null, productController.stealDealTab.value == '₹29\nStore'))),
                 ],
-              ),
+              )),
             ],
           ),
         ),
@@ -926,30 +942,123 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildStoreTab(String title, IconData? icon, bool isSelected) {
+  Widget _buildSeparator(String currentTab, String leftTab, String rightTab) {
+    if (currentTab == leftTab || currentTab == rightTab) {
+      return const SizedBox(width: 1);
+    }
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFFFFF0F5) : Colors.transparent,
-        borderRadius: isSelected ? const BorderRadius.vertical(top: Radius.circular(16)) : BorderRadius.zero,
-        border: isSelected ? const Border(
-          top: BorderSide(color: Color(0xFFF0145A), width: 1.5),
-          left: BorderSide(color: Color(0xFFF0145A), width: 1.5),
-          right: BorderSide(color: Color(0xFFF0145A), width: 1.5),
-          bottom: BorderSide(color: Color(0xFFFFF0F5), width: 1.5),
-        ) : const Border(
-          bottom: BorderSide(color: Colors.transparent, width: 1.5),
-        ),
-      ),
-      child: Column(
-
-        children: [
-          if (icon != null) Icon(icon, color: Colors.orange, size: 24) else Text(title.split('\n')[0], style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
-          const SizedBox(height: 4),
-          Text(title.contains('\n') ? title.split('\n')[1] : title, style: TextStyle(color: isSelected ? const Color(0xFFF0145A) : Colors.black54, fontWeight: FontWeight.bold, fontSize: 12), textAlign: TextAlign.center),
-        ],
-      ),
+      width: 1,
+      height: 30,
+      color: Colors.grey.shade300,
     );
+  }
+
+  Widget _buildGenericTab({
+    required String title,
+    required bool isSelected,
+    required Color activeColor,
+    required Color activeBgColor,
+    required Color inactiveColor,
+  }) {
+    if (isSelected) {
+      return Container(
+        decoration: BoxDecoration(
+          color: activeColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Container(
+          margin: const EdgeInsets.only(top: 1.5, left: 1.5, right: 1.5),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [activeBgColor, Colors.white],
+            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(14.5)),
+          ),
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: activeColor,
+            ),
+          ),
+        ),
+      );
+    } else {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Colors.transparent, width: 1.5),
+          ),
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            color: inactiveColor,
+          ),
+        ),
+      );
+    }
+  }
+
+  Widget _buildStoreTab(String title, IconData? icon, bool isSelected) {
+    if (isSelected) {
+      return Container(
+        decoration: const BoxDecoration(
+          color: Color(0xFFF0145A),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Container(
+          margin: const EdgeInsets.only(top: 1.5, left: 1.5, right: 1.5),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFFFFF0F5), Colors.white],
+            ),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(14.5)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) 
+                Icon(icon, color: Colors.deepOrange, size: 28) 
+              else 
+                Text(title.split('\n')[0], style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.blueGrey.shade900)),
+              const SizedBox(height: 4),
+              Text(title.contains('\n') ? title.split('\n')[1] : title, style: const TextStyle(color: Color(0xFFF0145A), fontWeight: FontWeight.bold, fontSize: 13), textAlign: TextAlign.center),
+            ],
+          ),
+        ),
+      );
+    } else {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Colors.transparent, width: 1.5),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) 
+              Icon(icon, color: Colors.deepOrange, size: 28) 
+            else 
+              Text(title.split('\n')[0], style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.blueGrey.shade900)),
+            const SizedBox(height: 4),
+            Text(title.contains('\n') ? title.split('\n')[1] : title, style: TextStyle(color: Colors.blueGrey.shade600, fontWeight: FontWeight.bold, fontSize: 13), textAlign: TextAlign.center),
+          ],
+        ),
+      );
+    }
   }
 
   Widget _buildFilterChip(String title, IconData? icon, bool isSelected, {String? img}) {
@@ -1238,15 +1347,25 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
+        Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
+          child: Stack(
             children: [
-              _buildStoreTab('Bouquets & Plants', null, true),
-              _buildStoreTab('Fruits', null, false),
-              _buildStoreTab('Veggies', null, false),
-              _buildStoreTab('Season\'s Best', null, false),
+              Positioned(
+                bottom: 0, left: 0, right: 0,
+                child: Container(height: 1.5, color: const Color(0xFF2E7D32)),
+              ),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Obx(() => Row(
+                  children: [
+                    GestureDetector(onTap: () => productController.setFreshTab('Bouquets & Plants'), child: _buildGenericTab(title: 'Bouquets & Plants', isSelected: productController.freshTab.value == 'Bouquets & Plants', activeColor: const Color(0xFF2E7D32), activeBgColor: const Color(0xFFE8F5E9), inactiveColor: Colors.blueGrey.shade800)),
+                    GestureDetector(onTap: () => productController.setFreshTab('Fruits'), child: _buildGenericTab(title: 'Fruits', isSelected: productController.freshTab.value == 'Fruits', activeColor: const Color(0xFF2E7D32), activeBgColor: const Color(0xFFE8F5E9), inactiveColor: Colors.blueGrey.shade800)),
+                    GestureDetector(onTap: () => productController.setFreshTab('Veggies'), child: _buildGenericTab(title: 'Veggies', isSelected: productController.freshTab.value == 'Veggies', activeColor: const Color(0xFF2E7D32), activeBgColor: const Color(0xFFE8F5E9), inactiveColor: Colors.blueGrey.shade800)),
+                    GestureDetector(onTap: () => productController.setFreshTab('Season\'s Best'), child: _buildGenericTab(title: 'Season\'s Best', isSelected: productController.freshTab.value == 'Season\'s Best', activeColor: const Color(0xFF2E7D32), activeBgColor: const Color(0xFFE8F5E9), inactiveColor: Colors.blueGrey.shade800)),
+                  ],
+                )),
+              ),
             ],
           ),
         ),
@@ -1330,14 +1449,24 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionTitle('Clearance Sale'),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
+        Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
+          child: Stack(
             children: [
-              _buildStoreTab('Top Deals', null, true),
-              _buildStoreTab('Electronics & Appliances', null, false),
-              _buildStoreTab('Apparel & Lifestyle', null, false),
+              Positioned(
+                bottom: 0, left: 0, right: 0,
+                child: Container(height: 1.5, color: const Color(0xFFF0145A)),
+              ),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Obx(() => Row(
+                  children: [
+                    GestureDetector(onTap: () => productController.setClearanceSaleTab('Top Deals'), child: _buildGenericTab(title: 'Top Deals', isSelected: productController.clearanceSaleTab.value == 'Top Deals', activeColor: const Color(0xFFF0145A), activeBgColor: const Color(0xFFFFF0F5), inactiveColor: Colors.blueGrey.shade700)),
+                    GestureDetector(onTap: () => productController.setClearanceSaleTab('Electronics & Appliances'), child: _buildGenericTab(title: 'Electronics & Appliances', isSelected: productController.clearanceSaleTab.value == 'Electronics & Appliances', activeColor: const Color(0xFFF0145A), activeBgColor: const Color(0xFFFFF0F5), inactiveColor: Colors.blueGrey.shade700)),
+                    GestureDetector(onTap: () => productController.setClearanceSaleTab('Apparel & Lifestyle'), child: _buildGenericTab(title: 'Apparel & Lifestyle', isSelected: productController.clearanceSaleTab.value == 'Apparel & Lifestyle', activeColor: const Color(0xFFF0145A), activeBgColor: const Color(0xFFFFF0F5), inactiveColor: Colors.blueGrey.shade700)),
+                  ],
+                )),
+              ),
             ],
           ),
         ),
