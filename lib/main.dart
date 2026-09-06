@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Series',
+      title: 'Zesty',
       initialRoute: Routes.splash,
       getPages: AppPages.pages,
       theme: ThemeData(

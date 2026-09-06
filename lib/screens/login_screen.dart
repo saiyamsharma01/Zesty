@@ -42,7 +42,7 @@ class LoginScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'BlinkCart',
+                    'Zesty',
                     style: GoogleFonts.poppins(
                       fontSize: 42,
                       fontWeight: FontWeight.w800,

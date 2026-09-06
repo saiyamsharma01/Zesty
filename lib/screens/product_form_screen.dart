@@ -79,90 +79,155 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     }
   }
 
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    TextInputType keyboardType = TextInputType.text,
+    int maxLines = 1,
+    String? Function(String?)? validator,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16.0),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        maxLines: maxLines,
+        validator: validator,
+        style: const TextStyle(fontSize: 16),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(color: Colors.grey.shade600),
+          prefixIcon: Icon(icon, color: Colors.purple.shade300),
+          filled: true,
+          fillColor: Colors.grey.shade50,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.purple, width: 2),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.red, width: 1),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.product != null;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(isEditing ? 'Edit Product' : 'Add Product'),
-        backgroundColor: Colors.purple,
-        foregroundColor: Colors.white,
+        title: Text(isEditing ? 'Edit Product' : 'Add Product', style: const TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0,
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Product Name',
-                  border: OutlineInputBorder(),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.purple.shade50,
+                  borderRadius: BorderRadius.circular(16),
                 ),
+                child: Column(
+                  children: [
+                    Icon(
+                      isEditing ? Icons.edit_note : Icons.add_box_outlined,
+                      size: 48,
+                      color: Colors.purple,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      isEditing ? 'Update the details below' : 'Fill details to add a new product',
+                      style: TextStyle(color: Colors.purple.shade700, fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              _buildTextField(
+                controller: _nameController,
+                label: 'Product Name',
+                icon: Icons.shopping_bag_outlined,
                 validator: (value) => value!.isEmpty ? 'Enter product name' : null,
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _priceController,
-                decoration: const InputDecoration(
-                  labelText: 'Price (₹)',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) => value!.isEmpty ? 'Enter product price' : null,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _buildTextField(
+                      controller: _priceController,
+                      label: 'Price (₹)',
+                      icon: Icons.currency_rupee,
+                      keyboardType: TextInputType.number,
+                      validator: (value) => value!.isEmpty ? 'Enter price' : null,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildTextField(
+                      controller: _offerController,
+                      label: 'Offer (e.g., 10%)',
+                      icon: Icons.local_offer_outlined,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              TextFormField(
+              _buildTextField(
                 controller: _categoryController,
-                decoration: const InputDecoration(
-                  labelText: 'Category',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) => value!.isEmpty ? 'Enter product category' : null,
+                label: 'Category',
+                icon: Icons.category_outlined,
+                validator: (value) => value!.isEmpty ? 'Enter category' : null,
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _offerController,
-                decoration: const InputDecoration(
-                  labelText: 'Offer (e.g., 10% OFF)',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
+              _buildTextField(
                 controller: _imageController,
-                decoration: const InputDecoration(
-                  labelText: 'Image URL',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) => value!.isEmpty ? 'Enter product image URL' : null,
+                label: 'Image URL',
+                icon: Icons.image_outlined,
+                validator: (value) => value!.isEmpty ? 'Enter image URL' : null,
               ),
-              const SizedBox(height: 16),
-              TextFormField(
+              _buildTextField(
                 controller: _descController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
-                ),
+                label: 'Description',
+                icon: Icons.description_outlined,
                 maxLines: 3,
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               SizedBox(
-                height: 50,
+                height: 56,
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _saveProduct,
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 2,
+                  ),
                   child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                        )
                       : Text(
                           isEditing ? 'Update Product' : 'Save Product',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                 ),
               ),
+              const SizedBox(height: 20),
             ],
           ),
         ),

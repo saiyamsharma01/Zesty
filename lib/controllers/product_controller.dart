@@ -6,6 +6,11 @@ class ProductController extends GetxController {
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
   var products = <ProductModel>[].obs;
   var isLoading = false.obs;
+  var stealDealTab = 'Trending'.obs;
+
+  void setStealDealTab(String tab) {
+    stealDealTab.value = tab;
+  }
 
   @override
   void onInit() {
@@ -117,6 +122,6 @@ class ProductController extends GetxController {
   String _getImageForCategory(String category, int index) {
     // Generates a unique, real high-quality photo for every single item using a seed.
     String seed = '${category.replaceAll(' ', '')}$index';
-    return 'https://picsum.photos/seed/BlinkCart$seed/400/400';
+    return 'https://picsum.photos/seed/Zesty$seed/400/400';
   }
 }

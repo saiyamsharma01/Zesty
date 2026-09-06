@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../widgets/floating_cart_banner.dart';
+import '../widgets/global_offer_banner.dart';
 
 class SelectScreen extends StatelessWidget {
   const SelectScreen({super.key});
@@ -11,8 +13,19 @@ class SelectScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         iconTheme: const IconThemeData(color: Colors.brown),
       ),
-      body: const Center(
-        child: Text('Vegetables, Fruits, and Proteins', style: TextStyle(fontSize: 20)),
+      body: Stack(
+        children: [
+          const Center(
+            child: Text('Vegetables, Fruits, and Proteins', style: TextStyle(fontSize: 20)),
+          ),
+          const GlobalOfferBanner(),
+          const Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: FloatingCartBanner(),
+          ),
+        ],
       ),
     );
   }

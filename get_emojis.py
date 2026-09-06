@@ -1,0 +1,57 @@
+def get_hex(e):
+    return "-".join("{:x}".format(ord(c)) for c in e)
+
+emojis = {
+    "Fruits &\nVegetables": "🍎",
+    "Dairy, Bread\n& Eggs": "🥛",
+    "Atta, Rice,\nOil & Dals": "🌾",
+    "Meat, Fish\n& Eggs": "🥩",
+    "Masala &\nDry Fruits": "🌶️",
+    "Breakfast &\nSauces": "🥣",
+    "Packaged\nFood": "🥫",
+    "Zepto\nCafe": "☕",
+    "Tea, Coffee\n& More": "🍵",
+    "Ice Creams\n& More": "🍦",
+    "Frozen\nFood": "🧊",
+    "Sweet\nCravings": "🍩",
+    "Cold Drinks\n& Juices": "🥤",
+    "Munchies": "🥨",
+    "Biscuits\n& Cookies": "🍪",
+    "Apparel": "👕",
+    "Jewellery": "💎",
+    "Personal Care\nStudio": "🧴",
+    "Skincare": "✨",
+    "Makeup\n& Beauty": "💄",
+    "Fragrance": "🌸",
+    "Bath & Body": "🛁",
+    "Haircare": "✂️",
+    "Baby Care": "🍼",
+    "Protein &\nNutrition": "💪",
+    "Pharmacy\n& Wellness": "💊",
+    "Feminine\nHygiene": "🩸",
+    "Sexual\nWellness": "🍆",
+    "Home\nNeeds": "🏠",
+    "Kitchenware &\nAppliances": "🍳",
+    "Cleaning\nEssentials": "🧹",
+    "Electronics\nStore": "📱",
+    "Pet\nCare": "🐶",
+    "Paan\nCorner": "🍃",
+    "Toys &\nGames": "🧸",
+    "Stationery\n& Crafts": "🎨",
+    "Sports &\nFitness": "⚽",
+    "Book\nStore": "📚",
+    "Gift\nStore": "🎁",
+    "Ayush\nStore": "🌿",
+    "Pooja\nStore": "🕉️",
+    "Derma\nStore": "⚕️",
+    "Global\nStore": "🌍",
+    "Sports\nStore": "🏏",
+    "Gaming\nGift Cards": "🎮",
+    "Baby\nStore": "👶",
+    "Pleasure\nStore": "🔥",
+    "Automotive\nStore": "🚗"
+}
+
+for k, v in emojis.items():
+    clean_v = v.replace('\ufe0f', '')
+    print(f"'{k}': 'https://unpkg.com/emoji-datasource-apple@15.0.1/img/apple/64/{get_hex(clean_v)}.png',")
