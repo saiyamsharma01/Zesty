@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../widgets/address_bottom_sheet.dart';
 import '../controllers/cart_controller.dart';
+import '../controllers/order_controller.dart';
 import '../models/cart_item_model.dart';
 
 class CartScreen extends StatefulWidget {
@@ -727,6 +728,16 @@ class _CartScreenState extends State<CartScreen> {
                     height: 48,
                     child: ElevatedButton(
                       onPressed: () {
+                        // Record order in OrderController
+                        final orderCtrl = Get.isRegistered<OrderController>()
+                            ? Get.find<OrderController>()
+                            : Get.put(OrderController());
+                        orderCtrl.placeOrder(
+                          cartItems: cartController.items.values.toList(),
+                          totalAmount: cartController.toPay,
+                          address: _selectedAddressTitle ?? 'Home',
+                        );
+
                         showDialog(
                           context: context,
                           barrierDismissible: false,

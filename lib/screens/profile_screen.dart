@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../controllers/auth_controller.dart';
 import '../controllers/location_controller.dart';
+import '../routes/app_routes.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -211,7 +212,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: _buildActionCard(
             icon: Icons.shopping_bag_outlined,
             title: 'Your\nOrders',
-            onTap: _showOrdersSheet,
+            onTap: () => Get.toNamed(Routes.yourOrders),
           ),
         ),
         const SizedBox(width: 12),
@@ -219,7 +220,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: _buildActionCard(
             icon: Icons.chat_bubble_outline_rounded,
             title: 'Help &\nSupport',
-            onTap: _showHelpSupportSheet,
+            onTap: () => Get.toNamed(Routes.helpSupport),
           ),
         ),
         const SizedBox(width: 12),
@@ -227,7 +228,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: _buildActionCard(
             icon: Icons.receipt_long_outlined,
             title: 'Zepto\nCash',
-            onTap: _showZeptoCashSheet,
+            onTap: () => Get.toNamed(Routes.zeptoCash),
           ),
         ),
       ],
@@ -312,7 +313,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: _showZeptoCashSheet,
+          onTap: () => Get.toNamed(Routes.zeptoCash),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
             child: Row(
@@ -385,13 +386,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildListTileItem(
             icon: Icons.credit_card_outlined,
             title: 'E-Gift Cards',
-            onTap: _showZeptoCashSheet,
+            onTap: () => Get.toNamed(Routes.zeptoCash),
           ),
           _buildDivider(),
           _buildListTileItem(
             icon: Icons.chat_bubble_outline_rounded,
             title: 'Help & Support',
-            onTap: _showHelpSupportSheet,
+            onTap: () => Get.toNamed(Routes.helpSupport),
           ),
           _buildDivider(),
           // Dynamic Saved Addresses

@@ -13,6 +13,9 @@ import '../screens/super_mall_screen.dart';
 import '../screens/cafe_screen.dart';
 import '../screens/zepto_cafe_category_screen.dart';
 import '../screens/profile_screen.dart';
+import '../screens/your_orders_screen.dart';
+import '../screens/help_support_screen.dart';
+import '../screens/zepto_cash_screen.dart';
 
 class Routes {
   static const String splash = '/';
@@ -30,6 +33,9 @@ class Routes {
   static const String cafe = '/cafe';
   static const String cafeCategory = '/cafe-category';
   static const String profile = '/profile';
+  static const String yourOrders = '/your-orders';
+  static const String helpSupport = '/help-support';
+  static const String zeptoCash = '/zepto-cash';
 }
 
 class AppPages {
@@ -85,6 +91,18 @@ class AppPages {
     GetPage(
       name: Routes.profile,
       page: () => const ProfileScreen(),
+    ),
+    GetPage(
+      name: Routes.yourOrders,
+      page: () => const YourOrdersScreen(),
+    ),
+    GetPage(
+      name: Routes.helpSupport,
+      page: () => const HelpSupportScreen(),
+    ),
+    GetPage(
+      name: Routes.zeptoCash,
+      page: () => const ZeptoCashScreen(),
     ),
   ];
 }
