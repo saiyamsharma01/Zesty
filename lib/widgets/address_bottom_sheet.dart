@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../controllers/location_controller.dart';
 
 void showAddressBottomSheet(BuildContext context, Function(String, double) onAddressSelected) {
   showModalBottomSheet(
@@ -20,6 +22,10 @@ class _AddressBottomSheetContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locationController = Get.isRegistered<LocationController>()
+        ? Get.find<LocationController>()
+        : Get.put(LocationController(), permanent: true);
+
     return Container(
       decoration: const BoxDecoration(
         color: Color(0xFFF7F8F9), // Very light grey background like Zepto
@@ -76,7 +82,9 @@ class _AddressBottomSheetContent extends StatelessWidget {
                         ),
                       ),
                       trailing: const Icon(Icons.chevron_right, color: Colors.black54),
-                      onTap: () {},
+                      onTap: () {
+                        _showAddDialog(context, locationController);
+                      },
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -89,52 +97,116 @@ class _AddressBottomSheetContent extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   // Address List Container
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.grey.shade200),
-                    ),
-                    child: Column(
-                      children: [
-                        _buildAddressItem(
-                          context,
-                          icon: Icons.location_on_outlined,
-                          title: 'Other',
-                          distance: 0.4,
-                          address: '1288, Platinum hostel, 1288, Phase 5, Sector 59, Sahibzada Ajit Singh Nagar, Punjab 160059, India',
+                  Obx(() {
+                    if (locationController.savedAddresses.isEmpty) {
+                      return Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.grey.shade200),
                         ),
-                        Divider(height: 1, color: Colors.grey.shade200, indent: 16, endIndent: 16),
-                        _buildAddressItem(
-                          context,
-                          icon: Icons.location_on_outlined,
-                          title: 'Other (2)',
-                          distance: 0.6,
-                          address: '1895, 1895, Phase 5, Sector 59, Sahibzada Ajit Singh Nagar, Punjab 160059, India',
+                        child: const Center(
+                          child: Text(
+                            'No saved addresses. Add a new address above.',
+                            style: TextStyle(color: Colors.grey),
+                          ),
                         ),
-                        Divider(height: 1, color: Colors.grey.shade200, indent: 16, endIndent: 16),
-                        _buildAddressItem(
-                          context,
-                          icon: Icons.home_outlined,
-                          title: 'Home',
-                          distance: 0.2,
-                          address: '1567, 1566, Phase 5, sector:59, Sahibzada Ajit Singh Nagar, Punjab 160059, India',
+                      );
+                    }
+
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: locationController.savedAddresses.length,
+                        separatorBuilder: (context, index) => Divider(
+                          height: 1,
+                          color: Colors.grey.shade200,
+                          indent: 16,
+                          endIndent: 16,
                         ),
-                        Divider(height: 1, color: Colors.grey.shade200, indent: 16, endIndent: 16),
-                        _buildAddressItem(
-                          context,
-                          icon: Icons.business_outlined,
-                          title: 'Work',
-                          distance: 202.8,
-                          address: 'khalsa college, computer science department, 17, Near Bhandari Bridge, Katra Jaimal Singh, Kt. Jaim...',
-                        ),
-                      ],
-                    ),
-                  ),
+                        itemBuilder: (context, index) {
+                          final item = locationController.savedAddresses[index];
+                          final title = item['title'] ?? 'Other';
+                          final address = item['address'] ?? '';
+                          final distance = (item['distance'] is num)
+                              ? (item['distance'] as num).toDouble()
+                              : 0.4;
+                          final type = item['type'] ?? 'other';
+
+                          IconData icon = Icons.location_on_outlined;
+                          if (type == 'home' || title.toLowerCase().contains('home')) {
+                            icon = Icons.home_outlined;
+                          } else if (type == 'work' || title.toLowerCase().contains('work')) {
+                            icon = Icons.business_outlined;
+                          }
+
+                          return _buildAddressItem(
+                            context,
+                            icon: icon,
+                            title: title,
+                            distance: distance,
+                            address: address,
+                          );
+                        },
+                      ),
+                    );
+                  }),
                   const SizedBox(height: 32),
                 ],
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddDialog(BuildContext context, LocationController controller) {
+    final titleCtrl = TextEditingController(text: 'Home');
+    final addressCtrl = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Add New Address', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleCtrl,
+              decoration: const InputDecoration(labelText: 'Address Label (Home, Work, etc.)', border: OutlineInputBorder()),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: addressCtrl,
+              maxLines: 2,
+              decoration: const InputDecoration(labelText: 'Full Address', border: OutlineInputBorder()),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF9852F9)),
+            onPressed: () {
+              if (addressCtrl.text.trim().isNotEmpty) {
+                controller.addAddress(
+                  title: titleCtrl.text.trim().isNotEmpty ? titleCtrl.text.trim() : 'Other',
+                  address: addressCtrl.text.trim(),
+                  distance: 0.8,
+                );
+                Navigator.of(ctx).pop();
+              }
+            },
+            child: const Text('Save', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),

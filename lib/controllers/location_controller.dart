@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class LocationController extends GetxController {
   var currentAddress = 'Tap to set location...'.obs;
   var isLoading = false.obs;
+  var savedAddresses = <Map<String, dynamic>>[].obs;
 
   @override
   void onInit() {
@@ -17,9 +18,91 @@ class LocationController extends GetxController {
   Future<void> _loadUserAddress() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-      if (doc.exists && doc.data()!.containsKey('address')) {
-        currentAddress.value = doc['address'];
+      try {
+        final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+        if (doc.exists && doc.data() != null) {
+          final data = doc.data()!;
+          if (data.containsKey('address')) {
+            currentAddress.value = data['address'];
+          }
+          if (data.containsKey('savedAddresses') && data['savedAddresses'] is List) {
+            final List<dynamic> list = data['savedAddresses'];
+            savedAddresses.value = list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+          } else {
+            _seedDefaultAddresses();
+          }
+        } else {
+          _seedDefaultAddresses();
+        }
+      } catch (e) {
+        _seedDefaultAddresses();
+      }
+    } else {
+      _seedDefaultAddresses();
+    }
+  }
+
+  void _seedDefaultAddresses() {
+    savedAddresses.value = [
+      {
+        'title': 'Other',
+        'distance': 0.4,
+        'address': '1288, Platinum hostel, 1288, Phase 5, Sector 59, Sahibzada Ajit Singh Nagar, Punjab 160059, India',
+        'type': 'other',
+      },
+      {
+        'title': 'Other (2)',
+        'distance': 0.6,
+        'address': '1895, 1895, Phase 5, Sector 59, Sahibzada Ajit Singh Nagar, Punjab 160059, India',
+        'type': 'other',
+      },
+      {
+        'title': 'Home',
+        'distance': 0.2,
+        'address': '1567, 1566, Phase 5, sector:59, Sahibzada Ajit Singh Nagar, Punjab 160059, India',
+        'type': 'home',
+      },
+      {
+        'title': 'Work',
+        'distance': 202.8,
+        'address': 'khalsa college, computer science department, 17, Near Bhandari Bridge, Katra Jaimal Singh, Kt. Jaim...',
+        'type': 'work',
+      },
+    ];
+  }
+
+  Future<void> addAddress({
+    required String title,
+    required String address,
+    double distance = 0.5,
+    String type = 'other',
+  }) async {
+    savedAddresses.add({
+      'title': title,
+      'distance': distance,
+      'address': address,
+      'type': type,
+    });
+    await _saveSavedAddressesToFirebase();
+  }
+
+  Future<void> deleteAddress(int index) async {
+    if (index >= 0 && index < savedAddresses.length) {
+      savedAddresses.removeAt(index);
+      await _saveSavedAddressesToFirebase();
+    }
+  }
+
+  Future<void> _saveSavedAddressesToFirebase() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
+          {'savedAddresses': savedAddresses.toList()},
+          SetOptions(merge: true),
+        );
+      } catch (e) {
+        // Silently handle if offline
       }
     }
   }

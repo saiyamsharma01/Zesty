@@ -11,6 +11,9 @@ import '../screens/verify_email_screen.dart';
 import '../screens/select_screen.dart';
 import '../screens/super_mall_screen.dart';
 import '../screens/cafe_screen.dart';
+import '../screens/zepto_cafe_category_screen.dart';
+import '../screens/profile_screen.dart';
+
 class Routes {
   static const String splash = '/';
   static const String login = '/login';
@@ -25,6 +28,8 @@ class Routes {
   static const String select = '/select';
   static const String superMall = '/super-mall';
   static const String cafe = '/cafe';
+  static const String cafeCategory = '/cafe-category';
+  static const String profile = '/profile';
 }
 
 class AppPages {
@@ -72,6 +77,14 @@ class AppPages {
     GetPage(
       name: Routes.cafe,
       page: () => const CafeScreen(),
+    ),
+    GetPage(
+      name: Routes.cafeCategory,
+      page: () => const ZeptoCafeCategoryScreen(),
+    ),
+    GetPage(
+      name: Routes.profile,
+      page: () => const ProfileScreen(),
     ),
   ];
 }

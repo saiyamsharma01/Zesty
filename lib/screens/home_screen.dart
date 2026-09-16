@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -9,10 +8,10 @@ import '../models/product_model.dart';
 import 'category_screen.dart';
 import 'manage_products_screen.dart';
 import 'all_categories_screen.dart';
-import 'cart_screen.dart';
 import '../widgets/global_offer_banner.dart';
 import '../widgets/floating_cart_banner.dart';
 import '../controllers/cart_controller.dart';
+import '../routes/app_routes.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -200,24 +199,33 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.purple.shade200),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.account_balance_wallet, color: Colors.purple.shade300, size: 16),
-                    const SizedBox(width: 4),
-                    const Text('₹0', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.purple)),
-                  ],
-                ),
-              ),
+              Obx(() {
+                final authCtrl = Get.find<AuthController>();
+                return GestureDetector(
+                  onTap: () => Get.toNamed(Routes.profile),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.purple.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.account_balance_wallet, color: Colors.purple.shade300, size: 16),
+                        const SizedBox(width: 4),
+                        Text(
+                          '₹${authCtrl.zeptoCash.value.toInt()}',
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.purple),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
               const SizedBox(width: 12),
               GestureDetector(
-                onTap: () => Get.find<AuthController>().logout(),
+                onTap: () => Get.toNamed(Routes.profile),
                 child: const CircleAvatar(
                   radius: 18,
                   backgroundColor: Colors.black54,

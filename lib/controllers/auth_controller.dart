@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -36,6 +37,12 @@ class AuthController extends GetxController {
   final verificationId = ''.obs;
   final phoneNumber = ''.obs;
 
+  // User Profile Observables
+  final userName = 'saiyam'.obs;
+  final userPhone = '+91 62397 09216'.obs;
+  final userEmail = ''.obs;
+  final zeptoCash = 0.0.obs;
+
   // ============================================================
   // SESSION
   // ============================================================
@@ -56,8 +63,124 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    fetchUserData();
+  }
 
-    // Session-related initialization
+  Future<void> fetchUserData() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        if (user.displayName != null && user.displayName!.isNotEmpty) {
+          userName.value = user.displayName!;
+        } else if (user.email != null && user.email!.isNotEmpty) {
+          userName.value = user.email!.split('@').first;
+        }
+
+        if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty) {
+          userPhone.value = user.phoneNumber!;
+        }
+        if (user.email != null && user.email!.isNotEmpty) {
+          userEmail.value = user.email!;
+        }
+
+        final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+        if (doc.exists && doc.data() != null) {
+          final data = doc.data()!;
+          if (data['name'] != null && data['name'].toString().isNotEmpty) {
+            userName.value = data['name'];
+          }
+          if (data['phone'] != null && data['phone'].toString().isNotEmpty) {
+            userPhone.value = data['phone'];
+          }
+          if (data['email'] != null && data['email'].toString().isNotEmpty) {
+            userEmail.value = data['email'];
+          }
+          if (data['zeptoCash'] != null) {
+            zeptoCash.value = (data['zeptoCash'] as num).toDouble();
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching user data: $e');
+    }
+  }
+
+  Future<bool> updateUserProfile({required String name, required String phone}) async {
+    try {
+      isLoading.value = true;
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        if (name.trim().isNotEmpty) {
+          await user.updateDisplayName(name.trim());
+          userName.value = name.trim();
+        }
+        if (phone.trim().isNotEmpty) {
+          userPhone.value = phone.trim();
+        }
+
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
+          {
+            'name': userName.value,
+            'phone': userPhone.value,
+          },
+          SetOptions(merge: true),
+        );
+        Get.snackbar('Success', 'Profile updated successfully!', snackPosition: SnackPosition.BOTTOM);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      _showError('Failed to update profile: $e');
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<bool> addZeptoCash(double amount) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      zeptoCash.value += amount;
+      if (user != null) {
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
+          {
+            'zeptoCash': zeptoCash.value,
+          },
+          SetOptions(merge: true),
+        );
+      }
+      Get.snackbar('Success', '₹${amount.toInt()} added to Zepto Cash!', snackPosition: SnackPosition.BOTTOM);
+      return true;
+    } catch (e) {
+      _showError('Failed to add Zepto Cash: $e');
+      return false;
+    }
+  }
+
+  Future<bool> redeemGiftCard(String code) async {
+    try {
+      final cleanCode = code.trim().toUpperCase();
+      if (cleanCode.isEmpty) {
+        _showError('Please enter a voucher code.');
+        return false;
+      }
+
+      double amountToAdd = 100.0;
+      if (cleanCode.contains('1000')) {
+        amountToAdd = 1000.0;
+      } else if (cleanCode.contains('500')) {
+        amountToAdd = 500.0;
+      } else if (cleanCode.contains('250')) {
+        amountToAdd = 250.0;
+      }
+
+      await addZeptoCash(amountToAdd);
+      Get.snackbar('Gift Card Redeemed!', '₹${amountToAdd.toInt()} voucher credited to your account!', snackPosition: SnackPosition.BOTTOM);
+      return true;
+    } catch (e) {
+      _showError('Failed to redeem gift card: $e');
+      return false;
+    }
   }
 
   @override
