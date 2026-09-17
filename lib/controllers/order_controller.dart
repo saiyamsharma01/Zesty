@@ -103,7 +103,7 @@ class OrderController extends GetxController {
           },
           {
             'name': 'Kurkure Masala Munch',
-            'image': 'https://images.unsplash.com/photo-1621996346565-e3d5d6281699?w=200&q=80',
+            'image': 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=200&q=80',
             'price': 30.0,
             'quantity': 2,
           },
