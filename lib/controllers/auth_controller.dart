@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:flutter_series/routes/app_routes.dart';
 import 'package:flutter_series/services/firebase_service.dart';
@@ -37,7 +38,7 @@ class AuthController extends GetxController {
   final verificationId = ''.obs;
   final phoneNumber = ''.obs;
 
-  // User Profile Observables
+  // User Profile Observables - zeptoCash defaults strictly to 0.0
   final userName = 'saiyam'.obs;
   final userPhone = '+91 62397 09216'.obs;
   final userEmail = ''.obs;
@@ -63,7 +64,17 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _loadLocalZeptoCash();
     fetchUserData();
+  }
+
+  Future<void> _loadLocalZeptoCash() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      zeptoCash.value = prefs.getDouble('zepto_cash_balance') ?? 0.0;
+    } catch (e) {
+      zeptoCash.value = 0.0;
+    }
   }
 
   Future<void> fetchUserData() async {
@@ -97,6 +108,8 @@ class AuthController extends GetxController {
           }
           if (data['zeptoCash'] != null) {
             zeptoCash.value = (data['zeptoCash'] as num).toDouble();
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setDouble('zepto_cash_balance', zeptoCash.value);
           }
         }
       }
@@ -139,17 +152,34 @@ class AuthController extends GetxController {
 
   Future<bool> addZeptoCash(double amount) async {
     try {
-      final user = FirebaseAuth.instance.currentUser;
       zeptoCash.value += amount;
+
+      // 1. Save locally to SharedPreferences for instant persistence
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setDouble('zepto_cash_balance', zeptoCash.value);
+      } catch (_) {}
+
+      // 2. Save to Firestore if user logged in
+      final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
-          {
-            'zeptoCash': zeptoCash.value,
-          },
-          SetOptions(merge: true),
-        );
+        try {
+          await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
+            {
+              'zeptoCash': zeptoCash.value,
+            },
+            SetOptions(merge: true),
+          );
+        } catch (_) {}
       }
-      Get.snackbar('Success', '₹${amount.toInt()} added to Zepto Cash!', snackPosition: SnackPosition.BOTTOM);
+
+      Get.snackbar(
+        'Balance Added!',
+        '₹${amount.toInt()} added to Zepto Cash! Available: ₹${zeptoCash.value.toInt()}',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: const Color(0xFFE8F8EE),
+        colorText: const Color(0xFF16A34A),
+      );
       return true;
     } catch (e) {
       _showError('Failed to add Zepto Cash: $e');
