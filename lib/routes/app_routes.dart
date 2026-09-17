@@ -16,6 +16,12 @@ import '../screens/profile_screen.dart';
 import '../screens/your_orders_screen.dart';
 import '../screens/help_support_screen.dart';
 import '../screens/zepto_cash_screen.dart';
+import '../screens/review_and_earn_screen.dart';
+import '../screens/your_refunds_screen.dart';
+import '../screens/e_gift_cards_screen.dart';
+import '../screens/add_address_details_screen.dart';
+import '../screens/manage_payments_screen.dart';
+import '../screens/notifications_screen.dart';
 
 class Routes {
   static const String splash = '/';
@@ -36,6 +42,12 @@ class Routes {
   static const String yourOrders = '/your-orders';
   static const String helpSupport = '/help-support';
   static const String zeptoCash = '/zepto-cash';
+  static const String reviewAndEarn = '/review-and-earn';
+  static const String yourRefunds = '/your-refunds';
+  static const String eGiftCards = '/e-gift-cards';
+  static const String addAddressDetails = '/add-address-details';
+  static const String managePayments = '/manage-payments';
+  static const String notifications = '/notifications';
 }
 
 class AppPages {
@@ -103,6 +115,30 @@ class AppPages {
     GetPage(
       name: Routes.zeptoCash,
       page: () => const ZeptoCashScreen(),
+    ),
+    GetPage(
+      name: Routes.reviewAndEarn,
+      page: () => const ReviewAndEarnScreen(),
+    ),
+    GetPage(
+      name: Routes.yourRefunds,
+      page: () => const YourRefundsScreen(),
+    ),
+    GetPage(
+      name: Routes.eGiftCards,
+      page: () => const EGiftCardsScreen(),
+    ),
+    GetPage(
+      name: Routes.addAddressDetails,
+      page: () => const AddAddressDetailsScreen(),
+    ),
+    GetPage(
+      name: Routes.managePayments,
+      page: () => const ManagePaymentsScreen(),
+    ),
+    GetPage(
+      name: Routes.notifications,
+      page: () => const NotificationsScreen(),
     ),
   ];
 }

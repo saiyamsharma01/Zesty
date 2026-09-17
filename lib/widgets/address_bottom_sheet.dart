@@ -83,7 +83,8 @@ class _AddressBottomSheetContent extends StatelessWidget {
                       ),
                       trailing: const Icon(Icons.chevron_right, color: Colors.black54),
                       onTap: () {
-                        _showAddDialog(context, locationController);
+                        Navigator.of(context).pop();
+                        Get.toNamed(Routes.addAddressDetails);
                       },
                     ),
                   ),

@@ -6,6 +6,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LocationController extends GetxController {
   var currentAddress = 'Tap to set location...'.obs;
+  var detectedArea = 'Phase 5'.obs;
+  var detectedSubArea = 'Sector 59, Industrial Area, SAS Nagar'.obs;
+  var detectedLatitude = 30.7046.obs;
+  var detectedLongitude = 76.7179.obs;
   var isLoading = false.obs;
   var savedAddresses = <Map<String, dynamic>>[].obs;
 
@@ -49,24 +53,44 @@ class LocationController extends GetxController {
         'distance': 0.4,
         'address': '1288, Platinum hostel, 1288, Phase 5, Sector 59, Sahibzada Ajit Singh Nagar, Punjab 160059, India',
         'type': 'other',
+        'houseNo': '1288',
+        'buildingBlock': 'Platinum Hostel',
+        'landmark': 'Near Gurudwara',
+        'receiverName': 'User',
+        'receiverPhone': '9876543210',
       },
       {
         'title': 'Other (2)',
         'distance': 0.6,
         'address': '1895, 1895, Phase 5, Sector 59, Sahibzada Ajit Singh Nagar, Punjab 160059, India',
         'type': 'other',
+        'houseNo': '1895',
+        'buildingBlock': '',
+        'landmark': 'Phase 5 Park',
+        'receiverName': 'User',
+        'receiverPhone': '9876543210',
       },
       {
         'title': 'Home',
         'distance': 0.2,
         'address': '1567, 1566, Phase 5, sector:59, Sahibzada Ajit Singh Nagar, Punjab 160059, India',
         'type': 'home',
+        'houseNo': '1567',
+        'buildingBlock': 'Block B',
+        'landmark': 'Main Market',
+        'receiverName': 'User',
+        'receiverPhone': '9876543210',
       },
       {
         'title': 'Work',
         'distance': 202.8,
-        'address': 'khalsa college, computer science department, 17, Near Bhandari Bridge, Katra Jaimal Singh, Kt. Jaim...',
+        'address': 'Khalsa College, Computer Science Department, 17, Near Bhandari Bridge, Katra Jaimal Singh',
         'type': 'work',
+        'houseNo': '17',
+        'buildingBlock': 'CS Dept',
+        'landmark': 'Bhandari Bridge',
+        'receiverName': 'Office Desk',
+        'receiverPhone': '9876543210',
       },
     ];
   }
@@ -76,12 +100,26 @@ class LocationController extends GetxController {
     required String address,
     double distance = 0.5,
     String type = 'other',
+    String houseNo = '',
+    String buildingBlock = '',
+    String landmark = '',
+    String receiverName = '',
+    String receiverPhone = '',
+    double? latitude,
+    double? longitude,
   }) async {
     savedAddresses.add({
       'title': title,
       'distance': distance,
       'address': address,
       'type': type,
+      'houseNo': houseNo,
+      'buildingBlock': buildingBlock,
+      'landmark': landmark,
+      'receiverName': receiverName,
+      'receiverPhone': receiverPhone,
+      'latitude': latitude ?? detectedLatitude.value,
+      'longitude': longitude ?? detectedLongitude.value,
     });
     await _saveSavedAddressesToFirebase();
   }
@@ -132,7 +170,7 @@ class LocationController extends GetxController {
 
       serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        Get.snackbar('Error', 'Location services are disabled.');
+        Get.snackbar('Location Service', 'Please enable GPS on your device.');
         isLoading.value = false;
         return;
       }
@@ -141,36 +179,53 @@ class LocationController extends GetxController {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          Get.snackbar('Error', 'Location permissions are denied');
+          Get.snackbar('Permission Denied', 'Location permissions are denied');
           isLoading.value = false;
           return;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
-        Get.snackbar('Error', 'Location permissions are permanently denied, we cannot request permissions.');
+        Get.snackbar('Permission Denied', 'Location permissions are permanently denied, please enable in settings.');
         isLoading.value = false;
         return;
       }
 
       Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
       );
+
+      detectedLatitude.value = position.latitude;
+      detectedLongitude.value = position.longitude;
 
       List<Placemark> placemarks = await Geocoding().placemarkFromCoordinates(position.latitude, position.longitude);
       
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks[0];
-        String address = '${place.name}, ${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
         
-        // Clean up leading commas or spaces if any fields are empty
+        final areaName = place.subLocality?.isNotEmpty == true
+            ? place.subLocality!
+            : (place.locality?.isNotEmpty == true ? place.locality! : 'Current Location');
+        
+        final subAreaParts = [
+          if (place.street != null && place.street!.isNotEmpty) place.street,
+          if (place.subAdministrativeArea != null && place.subAdministrativeArea!.isNotEmpty) place.subAdministrativeArea,
+          if (place.locality != null && place.locality!.isNotEmpty && place.locality != areaName) place.locality,
+          if (place.postalCode != null && place.postalCode!.isNotEmpty) place.postalCode,
+        ];
+        
+        detectedArea.value = areaName;
+        detectedSubArea.value = subAreaParts.join(', ');
+
+        String address = '${place.name}, ${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
         address = address.replaceAll(RegExp(r'(^,\s*)|(,\s*null)'), '').replaceAll(', , ', ', ');
         
         currentAddress.value = address;
         await _saveToFirebase(address);
+        Get.snackbar('Location Updated', 'Located: $areaName');
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to get location: $e');
+      Get.snackbar('Notice', 'Using default coordinates for preview.');
     } finally {
       isLoading.value = false;
     }

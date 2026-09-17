@@ -374,19 +374,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildListTileItem(
             icon: Icons.rate_review_outlined,
             title: 'Review & Earn',
-            onTap: _showReviewEarnSheet,
+            onTap: () => Get.toNamed(Routes.reviewAndEarn),
           ),
           _buildDivider(),
           _buildListTileItem(
             icon: Icons.currency_rupee_rounded,
             title: 'Your Refunds',
-            onTap: _showRefundsSheet,
+            onTap: () => Get.toNamed(Routes.yourRefunds),
           ),
           _buildDivider(),
           _buildListTileItem(
             icon: Icons.credit_card_outlined,
             title: 'E-Gift Cards',
-            onTap: () => Get.toNamed(Routes.zeptoCash),
+            onTap: () => Get.toNamed(Routes.eGiftCards),
           ),
           _buildDivider(),
           _buildListTileItem(
@@ -424,7 +424,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildListTileItem(
             icon: Icons.payment_outlined,
             title: 'Payment Management',
-            onTap: _showPaymentManagementSheet,
+            onTap: () => Get.toNamed(Routes.managePayments),
           ),
         ],
       ),
@@ -452,7 +452,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildListTileItem(
             icon: Icons.notifications_none_rounded,
             title: 'Notifications',
-            onTap: _showNotificationsSheet,
+            onTap: () => Get.toNamed(Routes.notifications),
           ),
           _buildDivider(),
           _buildListTileItem(
@@ -752,7 +752,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         trailing: const Icon(Icons.chevron_right, color: Colors.black54),
                         onTap: () {
-                          _showAddNewAddressDialog();
+                          Navigator.of(ctx).pop();
+                          Get.toNamed(Routes.addAddressDetails);
                         },
                       ),
                     ),
