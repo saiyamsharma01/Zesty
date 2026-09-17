@@ -71,7 +71,26 @@ class AuthController extends GetxController {
   Future<void> _loadLocalZeptoCash() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      zeptoCash.value = prefs.getDouble('zepto_cash_balance') ?? 0.0;
+      // Ensure one-time reset of old test balance to 0.0
+      final hasReset = prefs.getBool('zepto_cash_zero_reset_v2') ?? false;
+      if (!hasReset) {
+        zeptoCash.value = 0.0;
+        await prefs.setDouble('zepto_cash_balance', 0.0);
+        await prefs.setBool('zepto_cash_zero_reset_v2', true);
+
+        // Also sync 0.0 to Firestore
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          try {
+            await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
+              {'zeptoCash': 0.0},
+              SetOptions(merge: true),
+            );
+          } catch (_) {}
+        }
+      } else {
+        zeptoCash.value = prefs.getDouble('zepto_cash_balance') ?? 0.0;
+      }
     } catch (e) {
       zeptoCash.value = 0.0;
     }
@@ -106,9 +125,10 @@ class AuthController extends GetxController {
           if (data['email'] != null && data['email'].toString().isNotEmpty) {
             userEmail.value = data['email'];
           }
-          if (data['zeptoCash'] != null) {
+          final prefs = await SharedPreferences.getInstance();
+          final hasReset = prefs.getBool('zepto_cash_zero_reset_v2') ?? false;
+          if (hasReset && data['zeptoCash'] != null) {
             zeptoCash.value = (data['zeptoCash'] as num).toDouble();
-            final prefs = await SharedPreferences.getInstance();
             await prefs.setDouble('zepto_cash_balance', zeptoCash.value);
           }
         }
