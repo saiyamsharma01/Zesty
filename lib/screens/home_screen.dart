@@ -890,13 +890,14 @@ class _HomeScreenState extends State<HomeScreen> {
         SizedBox(
           height: 200,
           child: Obx(() {
-            if (productController.products.isEmpty) return const SizedBox();
+            final items = productController.getValuePicks();
+            if (items.isEmpty) return const SizedBox();
             return ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              itemCount: productController.products.length.clamp(0, 5),
+              itemCount: items.length,
               itemBuilder: (context, index) {
-                return _buildProductCard(productController.products[index], cartController);
+                return _buildProductCard(items[index], cartController);
               },
             );
           }),
@@ -907,7 +908,7 @@ class _HomeScreenState extends State<HomeScreen> {
             width: double.infinity,
             height: 44,
             child: OutlinedButton(
-              onPressed: () {},
+              onPressed: () => Get.to(() => const CategoryScreen(categoryName: 'Price Drop')),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: Colors.grey.shade300),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -936,14 +937,26 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: Row(
+                child: Obx(() => Row(
                   children: [
-                    _buildGenericTab(title: 'All Items', isSelected: true, activeColor: const Color(0xFFF0145A), activeBgColor: const Color(0xFFFFF0F5), inactiveColor: Colors.blueGrey.shade700),
-                    _buildGenericTab(title: 'Zepto Cafe', isSelected: false, activeColor: const Color(0xFFF0145A), activeBgColor: const Color(0xFFFFF0F5), inactiveColor: Colors.blueGrey.shade700),
-                    _buildGenericTab(title: 'Snacks & Drinks', isSelected: false, activeColor: const Color(0xFFF0145A), activeBgColor: const Color(0xFFFFF0F5), inactiveColor: Colors.blueGrey.shade700),
-                    _buildGenericTab(title: 'Sweets & Chocolates', isSelected: false, activeColor: const Color(0xFFF0145A), activeBgColor: const Color(0xFFFFF0F5), inactiveColor: Colors.blueGrey.shade700),
+                    GestureDetector(
+                      onTap: () => productController.setBuyAgainTab('All Items'),
+                      child: _buildGenericTab(title: 'All Items', isSelected: productController.buyAgainTab.value == 'All Items', activeColor: const Color(0xFFF0145A), activeBgColor: const Color(0xFFFFF0F5), inactiveColor: Colors.blueGrey.shade700),
+                    ),
+                    GestureDetector(
+                      onTap: () => productController.setBuyAgainTab('Zepto Cafe'),
+                      child: _buildGenericTab(title: 'Zepto Cafe', isSelected: productController.buyAgainTab.value == 'Zepto Cafe', activeColor: const Color(0xFFF0145A), activeBgColor: const Color(0xFFFFF0F5), inactiveColor: Colors.blueGrey.shade700),
+                    ),
+                    GestureDetector(
+                      onTap: () => productController.setBuyAgainTab('Snacks & Drinks'),
+                      child: _buildGenericTab(title: 'Snacks & Drinks', isSelected: productController.buyAgainTab.value == 'Snacks & Drinks', activeColor: const Color(0xFFF0145A), activeBgColor: const Color(0xFFFFF0F5), inactiveColor: Colors.blueGrey.shade700),
+                    ),
+                    GestureDetector(
+                      onTap: () => productController.setBuyAgainTab('Sweets & Chocolates'),
+                      child: _buildGenericTab(title: 'Sweets & Chocolates', isSelected: productController.buyAgainTab.value == 'Sweets & Chocolates', activeColor: const Color(0xFFF0145A), activeBgColor: const Color(0xFFFFF0F5), inactiveColor: Colors.blueGrey.shade700),
+                    ),
                   ],
-                ),
+                )),
               ),
             ],
           ),
@@ -952,13 +965,12 @@ class _HomeScreenState extends State<HomeScreen> {
         SizedBox(
           height: 200,
           child: Obx(() {
-            if (productController.products.isEmpty) return const SizedBox();
-            // Using reversed just to show different items
-            final items = productController.products.reversed.toList();
+            final items = productController.getBuyAgainProducts(productController.buyAgainTab.value);
+            if (items.isEmpty) return const SizedBox();
             return ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              itemCount: items.length.clamp(0, 5),
+              itemCount: items.length,
               itemBuilder: (context, index) {
                 return _buildProductCard(items[index], cartController);
               },
@@ -1059,13 +1071,12 @@ class _HomeScreenState extends State<HomeScreen> {
         SizedBox(
           height: 200,
           child: Obx(() {
-            if (productController.products.isEmpty) return const SizedBox();
-            // Just picking a subset for demonstration
-            final items = productController.products.skip(2).toList();
+            final items = productController.getBloomProducts();
+            if (items.isEmpty) return const SizedBox();
             return ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              itemCount: items.length.clamp(0, 5),
+              itemCount: items.length,
               itemBuilder: (context, index) {
                 return _buildProductCard(items[index], cartController, bgColor: const Color(0xFFF0F6E6));
               },
@@ -1140,28 +1151,30 @@ class _HomeScreenState extends State<HomeScreen> {
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
+          child: Obx(() => Row(
             children: [
-              _buildFilterChip('ALL', Icons.grid_view, true),
-              _buildFilterChip('Masala, Dry\nFruits & More', null, false, img: 'assets/icons/Masala_Dryfruits.jpg'),
-              _buildFilterChip('Ice Creams &\nMore', null, false, img: 'assets/icons/Icecreams_more.jpg'),
+              GestureDetector(
+                onTap: () => productController.setStealDealSubCategory('ALL'),
+                child: _buildFilterChip('ALL', Icons.grid_view, productController.stealDealSubCategory.value == 'ALL'),
+              ),
+              GestureDetector(
+                onTap: () => productController.setStealDealSubCategory('Masala, Dry\nFruits & More'),
+                child: _buildFilterChip('Masala, Dry\nFruits & More', null, productController.stealDealSubCategory.value.contains('Masala'), img: 'assets/icons/Masala_Dryfruits.jpg'),
+              ),
+              GestureDetector(
+                onTap: () => productController.setStealDealSubCategory('Ice Creams &\nMore'),
+                child: _buildFilterChip('Ice Creams &\nMore', null, productController.stealDealSubCategory.value.contains('Ice Cream'), img: 'assets/icons/Icecreams_more.jpg'),
+              ),
             ],
-          ),
+          )),
         ),
         const SizedBox(height: 16),
         Obx(() {
-          if (productController.products.isEmpty) return const SizedBox();
-          List<ProductModel> items = productController.products;
-          
-          if (productController.stealDealTab.value == '₹9\nStore') {
-            items = items.where((p) => p.price <= 50).toList();
-          } else if (productController.stealDealTab.value == '₹19\nStore') {
-            items = items.where((p) => p.price > 50 && p.price <= 100).toList();
-          } else if (productController.stealDealTab.value == '₹29\nStore') {
-            items = items.where((p) => p.price > 100).toList();
-          }
-          
-          if (items.isEmpty) items = productController.products;
+          final items = productController.getStealDeals(
+            productController.stealDealTab.value,
+            productController.stealDealSubCategory.value,
+          );
+          if (items.isEmpty) return const SizedBox();
 
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -1178,7 +1191,7 @@ class _HomeScreenState extends State<HomeScreen> {
             width: double.infinity,
             height: 44,
             child: OutlinedButton(
-              onPressed: () {},
+              onPressed: () => Get.to(() => const CategoryScreen(categoryName: 'Price Drop')),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: Colors.grey.shade300),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -1699,13 +1712,14 @@ class _HomeScreenState extends State<HomeScreen> {
         SizedBox(
           height: 200,
           child: Obx(() {
-            if (productController.products.isEmpty) return const SizedBox();
+            final items = productController.getFreshProducts(productController.freshTab.value);
+            if (items.isEmpty) return const SizedBox();
             return ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              itemCount: productController.products.length.clamp(0, 5),
+              itemCount: items.length,
               itemBuilder: (context, index) {
-                return _buildProductCard(productController.products[index], cartController);
+                return _buildProductCard(items[index], cartController);
               },
             );
           }),
@@ -1716,7 +1730,7 @@ class _HomeScreenState extends State<HomeScreen> {
             width: double.infinity,
             height: 44,
             child: OutlinedButton(
-              onPressed: () {},
+              onPressed: () => Get.to(() => const CategoryScreen(categoryName: 'Fresh')),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: Colors.grey.shade300),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -1738,12 +1752,12 @@ class _HomeScreenState extends State<HomeScreen> {
         SizedBox(
           height: 200,
           child: Obx(() {
-            if (productController.products.isEmpty) return const SizedBox();
-            final items = productController.products.reversed.toList();
+            final items = productController.getBlockbusterDeals();
+            if (items.isEmpty) return const SizedBox();
             return ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              itemCount: items.length.clamp(0, 5),
+              itemCount: items.length,
               itemBuilder: (context, index) {
                 return _buildProductCard(items[index], cartController);
               },
@@ -1756,7 +1770,7 @@ class _HomeScreenState extends State<HomeScreen> {
             width: double.infinity,
             height: 44,
             child: OutlinedButton(
-              onPressed: () {},
+              onPressed: () => Get.to(() => const CategoryScreen(categoryName: 'Price Drop')),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: Colors.grey.shade300),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -1800,15 +1814,14 @@ class _HomeScreenState extends State<HomeScreen> {
         SizedBox(
           height: 200,
           child: Obx(() {
-            if (productController.products.isEmpty) return const SizedBox();
-            final items = productController.products.toList();
-            // Just reversing again to show different items as placeholder
+            final items = productController.getClearanceProducts(productController.clearanceSaleTab.value);
+            if (items.isEmpty) return const SizedBox();
             return ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              itemCount: items.length.clamp(0, 5),
+              itemCount: items.length,
               itemBuilder: (context, index) {
-                return _buildProductCard(items.reversed.toList()[index], cartController);
+                return _buildProductCard(items[index], cartController);
               },
             );
           }),
@@ -1819,7 +1832,7 @@ class _HomeScreenState extends State<HomeScreen> {
             width: double.infinity,
             height: 44,
             child: OutlinedButton(
-              onPressed: () {},
+              onPressed: () => Get.to(() => const CategoryScreen(categoryName: 'Super Mall')),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: Colors.grey.shade300),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
