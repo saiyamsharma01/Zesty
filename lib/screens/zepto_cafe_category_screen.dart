@@ -222,13 +222,13 @@ class _ZeptoCafeCategoryScreenState extends State<ZeptoCafeCategoryScreen> {
               ),
               // Wide Add Button spanning card width bottom corner
               Positioned(
-                bottom: -12, right: 8,
+                bottom: 8, right: 8,
                 child: _buildWideAddButton(product),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 20), // Extra space for the button
+        const SizedBox(height: 10),
         // Price Row
         Row(
           children: [

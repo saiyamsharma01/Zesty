@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../widgets/address_bottom_sheet.dart';
+import '../widgets/coupon_details_bottom_sheet.dart';
 import '../controllers/cart_controller.dart';
 import '../controllers/order_controller.dart';
 import '../models/cart_item_model.dart';
+import '../models/coupon_model.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -14,10 +16,17 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   final CartController cartController = Get.find<CartController>();
+  final TextEditingController _couponTextController = TextEditingController();
   
   String? _selectedAddressTitle;
   double? _selectedAddressDistance;
   bool _needBag = false;
+
+  @override
+  void dispose() {
+    _couponTextController.dispose();
+    super.dispose();
+  }
 
   void _onSelectAddressTapped() {
     showAddressBottomSheet(context, (title, distance) {
@@ -153,6 +162,11 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildCouponsSection() {
+    final appliedCoupon = cartController.appliedCoupon.value;
+    final couponDiscount = cartController.couponDiscountAmount.value;
+    final appliedModel = cartController.appliedCouponModel.value;
+    final bool hasCouponApplied = appliedCoupon.isNotEmpty;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
@@ -180,7 +194,12 @@ class _CartScreenState extends State<CartScreen> {
                   child: const Text('NEW', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(width: 8),
-                Text('Apply coupons + payment offers & save more', style: TextStyle(color: Colors.blue.shade700, fontSize: 12, fontWeight: FontWeight.bold)),
+                Expanded(
+                  child: Text(
+                    'Apply coupons + payment offers & save more',
+                    style: TextStyle(color: Colors.blue.shade700, fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ),
               ],
             ),
           ),
@@ -189,27 +208,165 @@ class _CartScreenState extends State<CartScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Coupons & offers', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                const SizedBox(height: 16),
-                _buildCouponItem(
-                  icon: Icons.discount,
-                  title: 'Save ₹50 with Z-PRIMESAVE50',
-                  subtitle: 'View all coupons >',
-                  couponCode: 'Z-PRIMESAVE50',
-                  discountAmount: 50.0,
+                // Promo Code Input Box
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        alignment: Alignment.centerLeft,
+                        child: TextField(
+                          controller: _couponTextController,
+                          textCapitalization: TextCapitalization.characters,
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, letterSpacing: 0.5),
+                          decoration: const InputDecoration(
+                            hintText: 'Enter code (e.g. DISCOUNT50)',
+                            hintStyle: TextStyle(fontSize: 12, color: Colors.black38, fontWeight: FontWeight.normal),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    SizedBox(
+                      height: 44,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          final code = _couponTextController.text.trim();
+                          if (code.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Please enter a coupon code')),
+                            );
+                            return;
+                          }
+                          final result = cartController.applyCouponByCode(code);
+                          final bool isSuccess = result['success'] == true;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Row(
+                                children: [
+                                  Icon(isSuccess ? Icons.celebration : Icons.info_outline, color: Colors.white, size: 20),
+                                  const SizedBox(width: 8),
+                                  Expanded(child: Text(result['message'] ?? '')),
+                                ],
+                              ),
+                              backgroundColor: isSuccess ? const Color(0xFF1CB469) : Colors.orange.shade800,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                          );
+                          if (isSuccess) {
+                            _couponTextController.clear();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFFF006E),
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        child: const Text('Apply', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                      ),
+                    ),
+                  ],
                 ),
+
+                const SizedBox(height: 14),
+
+                // Applied Banner
+                if (hasCouponApplied) ...[
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: couponDiscount > 0 ? const Color(0xFFEBF9F1) : const Color(0xFFFFF7ED),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: couponDiscount > 0 ? const Color(0xFFB8EACC) : const Color(0xFFFED7AA),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          couponDiscount > 0 ? Icons.check_circle : Icons.warning_amber_rounded,
+                          color: couponDiscount > 0 ? const Color(0xFF1CB469) : Colors.orange.shade800,
+                          size: 22,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Coupon Applied: $appliedCoupon',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: couponDiscount > 0 ? const Color(0xFF0F5132) : Colors.orange.shade900,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                couponDiscount > 0
+                                    ? 'You are saving ₹${couponDiscount.toInt()} on this order!'
+                                    : (appliedModel != null
+                                        ? 'Add items worth ₹${cartController.getMissingAmountForCoupon(appliedModel).toInt()} more to activate discount'
+                                        : 'Coupon requires higher cart total'),
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  color: couponDiscount > 0 ? const Color(0xFF198754) : Colors.orange.shade800,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            cartController.removeCoupon();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Coupon removed'),
+                                duration: Duration(seconds: 1),
+                              ),
+                            );
+                          },
+                          child: const Text('Remove', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                ],
+
+                // Recommended Coupons List
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Coupons & offers', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    GestureDetector(
+                      onTap: () => _showAllCouponsBottomSheet(context),
+                      child: Text(
+                        'View all >',
+                        style: TextStyle(color: Colors.blue.shade700, fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+
+                ...CouponData.defaultCoupons.take(2).map((c) => _buildDynamicCouponItem(c)),
                 const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
+                  padding: EdgeInsets.symmetric(vertical: 4),
                   child: Divider(height: 1, color: Color(0xFFEEEEEE)),
                 ),
-                _buildCouponItem(
-                  icon: Icons.account_balance_wallet,
-                  title: 'Get Upto ₹50 Cashback on using\nAmazon Pay',
-                  subtitle: 'View all payment offers',
-                  iconColor: Colors.black87,
-                  couponCode: 'AMAZON50',
-                  discountAmount: 50.0,
-                ),
+                ...CouponData.bankOffers.take(1).map((b) => _buildDynamicCouponItem(b)),
               ],
             ),
           ),
@@ -218,45 +375,166 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildCouponItem({required IconData icon, required String title, required String subtitle, Color iconColor = Colors.green, required String couponCode, required double discountAmount}) {
-    bool isApplied = cartController.appliedCoupon.value == couponCode;
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade200),
-            borderRadius: BorderRadius.circular(8),
-            color: isApplied ? Colors.green.shade50 : Colors.transparent,
+  Widget _buildDynamicCouponItem(CouponModel coupon) {
+    final isApplied = cartController.appliedCoupon.value == coupon.code;
+    final isApplicable = cartController.isCouponApplicable(coupon);
+    final missingAmount = cartController.getMissingAmountForCoupon(coupon);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => CouponDetailsBottomSheet.show(context, coupon),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                border: Border.all(color: isApplied ? const Color(0xFF1CB469) : Colors.grey.shade200),
+                borderRadius: BorderRadius.circular(8),
+                color: isApplied ? const Color(0xFFE8F8F0) : Colors.grey.shade50,
+              ),
+              child: Icon(
+                coupon.isBankOffer ? Icons.account_balance_wallet : Icons.discount,
+                color: isApplied ? const Color(0xFF1CB469) : (coupon.isBankOffer ? Colors.black87 : Colors.green.shade700),
+                size: 22,
+              ),
+            ),
           ),
-          child: Icon(icon, color: iconColor, size: 24),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
+          const SizedBox(width: 12),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => CouponDetailsBottomSheet.show(context, coupon),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          'Save ₹${coupon.discountAmount.toInt()} with ${coupon.code}',
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                            color: isApplied ? const Color(0xFF1CB469) : Colors.black87,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(Icons.info_outline, size: 13, color: Colors.grey.shade500),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    isApplied
+                        ? (cartController.couponDiscountAmount.value > 0 ? 'Coupon Applied!' : 'Add ₹${missingAmount.toInt()} more to activate')
+                        : (isApplicable ? 'Applicable on this order' : 'Add items worth ₹${missingAmount.toInt()} more'),
+                    style: TextStyle(
+                      color: isApplied
+                          ? (cartController.couponDiscountAmount.value > 0 ? const Color(0xFF1CB469) : Colors.orange.shade800)
+                          : (isApplicable ? Colors.green.shade600 : Colors.grey.shade600),
+                      fontSize: 11.5,
+                      fontWeight: isApplicable ? FontWeight.w500 : FontWeight.normal,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              if (isApplied) {
+                cartController.removeCoupon();
+              } else {
+                final result = cartController.applyCouponModel(coupon);
+                final bool isSuccess = result['success'] == true;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        Icon(isSuccess ? Icons.celebration : Icons.info_outline, color: Colors.white, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(result['message'] ?? '')),
+                      ],
+                    ),
+                    backgroundColor: isSuccess ? const Color(0xFF1CB469) : Colors.orange.shade800,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                );
+              }
+            },
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: BorderSide(
+                  color: isApplied ? Colors.grey : const Color(0xFFFF006E),
+                ),
+              ),
+            ),
+            child: Text(
+              isApplied ? 'Remove' : 'Apply',
+              style: TextStyle(
+                color: isApplied ? Colors.grey.shade700 : const Color(0xFFFF006E),
+                fontWeight: FontWeight.bold,
+                fontSize: 12.5,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAllCouponsBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.75,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, height: 1.2, color: isApplied ? Colors.green.shade800 : Colors.black87)),
-              const SizedBox(height: 2),
-              Text(isApplied ? 'Coupon Applied!' : subtitle, style: TextStyle(color: isApplied ? Colors.green.shade600 : Colors.grey.shade600, fontSize: 12)),
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 16, 12, 16),
+                decoration: const BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE))),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('All Coupons & Offers', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Obx(() {
+                  final all = CouponData.allCoupons;
+                  return ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: all.length,
+                    separatorBuilder: (context, index) => const Divider(height: 16),
+                    itemBuilder: (context, index) {
+                      final coupon = all[index];
+                      return _buildDynamicCouponItem(coupon);
+                    },
+                  );
+                }),
+              ),
             ],
           ),
-        ),
-        TextButton(
-          onPressed: () {
-            if (isApplied) {
-              cartController.removeCoupon();
-            } else {
-              cartController.applyCoupon(couponCode, discountAmount);
-            }
-          },
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8), side: BorderSide(color: isApplied ? Colors.grey : Colors.pink.shade600)),
-          ),
-          child: Text(isApplied ? 'Remove' : 'Apply', style: TextStyle(color: isApplied ? Colors.grey.shade700 : Colors.pink.shade600, fontWeight: FontWeight.bold)),
-        )
-      ],
+        );
+      },
     );
   }
 
@@ -374,17 +652,25 @@ class _CartScreenState extends State<CartScreen> {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.grey.shade200)
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey.shade200, width: 0.8),
                     ),
                     child: Center(
                       child: item.product.networkImage.isNotEmpty
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.network(item.product.networkImage, fit: BoxFit.cover),
+                          ? Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: Image.network(
+                                  item.product.networkImage,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Icon(Icons.shopping_bag_outlined, color: Colors.grey.shade400, size: 28),
+                                ),
+                              ),
                             )
-                          : Icon(Icons.image_outlined, color: Colors.grey.shade400, size: 32),
+                          : Icon(Icons.image_outlined, color: Colors.grey.shade400, size: 28),
                     ),
                   ),
                 ],
@@ -473,13 +759,9 @@ class _CartScreenState extends State<CartScreen> {
           _buildBillRow('Delivery Fee', '₹30', cartController.deliveryFee == 0 ? 'FREE' : '₹${cartController.deliveryFee.toInt()}', isFree: cartController.deliveryFee == 0),
           const SizedBox(height: 12),
           _buildBillRow('Handling Fee', '₹10', cartController.handlingFee == 0 ? 'FREE' : '₹${cartController.handlingFee.toInt()}', isFree: cartController.handlingFee == 0, isDashed: true),
-          if (cartController.appliedCoupon.isNotEmpty) ...[
+          if (cartController.appliedCoupon.isNotEmpty && cartController.couponDiscountAmount.value > 0) ...[
             const SizedBox(height: 12),
-            _buildBillRow('Coupon Discount', '', '-₹${cartController.couponDiscountAmount.value.toInt()}', isFree: true),
-          ],
-          if (cartController.offerDiscount > 0) ...[
-            const SizedBox(height: 12),
-            _buildBillRow('Offer Discount', '', '-₹${cartController.offerDiscount.toInt()}', isFree: true),
+            _buildBillRow('Coupon (${cartController.appliedCoupon.value}) Discount', '', '-₹${cartController.couponDiscountAmount.value.toInt()}', isFree: true),
           ],
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
@@ -568,20 +850,12 @@ class _CartScreenState extends State<CartScreen> {
           const SizedBox(height: 16),
           _buildSavingRow(Icons.percent, 'Discount on MRP', '₹${cartController.discount.toInt()}'),
           
-          if (cartController.appliedCoupon.isNotEmpty) ...[
+          if (cartController.appliedCoupon.isNotEmpty && cartController.couponDiscountAmount.value > 0) ...[
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 10),
               child: Divider(height: 1, color: Colors.black12),
             ),
-            _buildSavingRow(Icons.discount, 'Coupon Discount', '₹${cartController.couponDiscountAmount.value.toInt()}'),
-          ],
-          
-          if (cartController.offerDiscount > 0) ...[
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: Divider(height: 1, color: Colors.black12),
-            ),
-            _buildSavingRow(Icons.local_offer, 'Offer Discount', '₹${cartController.offerDiscount.toInt()}'),
+            _buildSavingRow(Icons.discount, 'Coupon (${cartController.appliedCoupon.value}) Discount', '₹${cartController.couponDiscountAmount.value.toInt()}'),
           ],
 
           const Padding(
@@ -736,6 +1010,8 @@ class _CartScreenState extends State<CartScreen> {
                           cartItems: cartController.items.values.toList(),
                           totalAmount: cartController.toPay,
                           address: _selectedAddressTitle ?? 'Home',
+                          appliedCoupon: cartController.appliedCoupon.value,
+                          couponDiscount: cartController.couponDiscountAmount.value,
                         );
 
                         showDialog(

@@ -1048,7 +1048,14 @@ class _ReviewAndEarnScreenState extends State<ReviewAndEarnScreen> {
                       Positioned.fill(
                         child: ClipRRect(
                           borderRadius: const BorderRadius.only(topLeft: Radius.circular(13)),
-                          child: Image.network(goodImage, fit: BoxFit.cover),
+                          child: Image.network(
+                            goodImage,
+                            fit: BoxFit.cover,
+                            errorBuilder: (c, e, s) => Container(
+                              color: Colors.grey.shade200,
+                              child: const Icon(Icons.image, color: Colors.grey),
+                            ),
+                          ),
                         ),
                       ),
                       Positioned(
@@ -1072,7 +1079,14 @@ class _ReviewAndEarnScreenState extends State<ReviewAndEarnScreen> {
                               Colors.black.withValues(alpha: 0.35),
                               BlendMode.darken,
                             ),
-                            child: Image.network(badImage, fit: BoxFit.cover),
+                            child: Image.network(
+                              badImage,
+                              fit: BoxFit.cover,
+                              errorBuilder: (c, e, s) => Container(
+                                color: Colors.grey.shade200,
+                                child: const Icon(Icons.broken_image_outlined, color: Colors.grey),
+                              ),
+                            ),
                           ),
                         ),
                       ),

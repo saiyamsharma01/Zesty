@@ -162,11 +162,11 @@ class _CafeScreenState extends State<CafeScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              _buildTopNavItem('All', 'assets/icons/Fruits_veg.jpg'),
+              _buildTopNavItem('All', 'assets/icons/fruits_veg.jpg'),
               _buildTopNavItem('Mall', 'assets/icons/Biscuits.jpg'),
               _buildTopNavItem('Cafe', 'assets/icons/Zepto_cafe.jpg'),
-              _buildTopNavItem('Fresh', 'assets/icons/Fruits_veg.jpg'),
-              _buildTopNavItem('Ganesh Cha...', 'assets/icons/Sweets_craving.jpg'),
+              _buildTopNavItem('Fresh', 'assets/icons/fruits_veg.jpg'),
+              _buildTopNavItem('Sweet Bites', 'assets/icons/Sweet_craving.jpg'),
             ],
           ),
         ),
@@ -183,20 +183,51 @@ class _CafeScreenState extends State<CafeScreen> {
         });
       },
       child: Padding(
-        padding: const EdgeInsets.only(right: 24.0),
+        padding: const EdgeInsets.only(right: 20.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(imageAsset, width: 36, height: 36, fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(width: 36, height: 36, color: Colors.grey.shade200),
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.purple.shade50 : Colors.grey.shade50,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected ? Colors.purple : Colors.grey.shade200,
+                  width: 1.5,
+                ),
+              ),
+              child: ClipOval(
+                child: Padding(
+                  padding: const EdgeInsets.all(6.0),
+                  child: Image.asset(
+                    imageAsset,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.fastfood_outlined, color: Colors.grey, size: 20),
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 8),
-            Text(title, style: TextStyle(fontWeight: isSelected ? FontWeight.bold : FontWeight.w600, fontSize: 13, color: Colors.black87)),
             const SizedBox(height: 6),
-            Container(height: 3, width: 40, decoration: BoxDecoration(color: isSelected ? Colors.black : Colors.transparent, borderRadius: BorderRadius.circular(1.5))),
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                fontSize: 12,
+                color: isSelected ? Colors.purple : Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Container(
+              height: 2.5,
+              width: 32,
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.purple : Colors.transparent,
+                borderRadius: BorderRadius.circular(1.5),
+              ),
+            ),
           ],
         ),
       ),
@@ -341,9 +372,8 @@ class _CafeScreenState extends State<CafeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 140,
+          height: 136,
           child: Stack(
-            clipBehavior: Clip.none,
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
@@ -353,26 +383,39 @@ class _CafeScreenState extends State<CafeScreen> {
                   width: double.infinity,
                   height: double.infinity,
                   errorBuilder: (context, error, stackTrace) {
-                    return Container(color: Colors.grey.shade200, child: const Center(child: Icon(Icons.fastfood, color: Colors.grey)));
+                    return Container(
+                      color: Colors.grey.shade100,
+                      child: const Center(
+                        child: Icon(Icons.fastfood, color: Colors.grey, size: 32),
+                      ),
+                    );
                   },
                 ),
               ),
               Positioned(
-                bottom: 8, left: 8,
+                bottom: 8,
+                left: 8,
                 child: Container(
                   padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 3),
+                    ],
+                  ),
                   child: Icon(Icons.stop_circle_outlined, color: Colors.green.shade700, size: 16),
                 ),
               ),
               Positioned(
-                bottom: -12, right: 8,
+                bottom: 8,
+                right: 8,
                 child: _buildWideAddButton(product),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 10),
         Row(
           children: [
             Container(

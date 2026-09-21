@@ -5,6 +5,8 @@ import '../controllers/auth_controller.dart';
 import '../controllers/product_controller.dart';
 import '../controllers/location_controller.dart';
 import '../models/product_model.dart';
+import '../models/coupon_model.dart';
+import '../widgets/coupon_details_bottom_sheet.dart';
 import 'category_screen.dart';
 import 'manage_products_screen.dart';
 import 'all_categories_screen.dart';
@@ -387,25 +389,49 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       height: height,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.white.withOpacity(0.92),
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: Text(title, textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, fontSize: isLarge ? 16 : 12, color: Colors.brown.shade800)),
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            left: 0,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12)),
-              child: Image.asset(img, height: isLarge ? 120 : 60, fit: BoxFit.contain, errorBuilder: (c,e,s) => const SizedBox()),
+            padding: const EdgeInsets.fromLTRB(6, 6, 6, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: isLarge ? 15 : 11,
+                    color: Colors.brown.shade900,
+                    height: 1.1,
+                  ),
+                ),
+                const Spacer(),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.asset(
+                    img,
+                    height: isLarge ? 110 : 44,
+                    width: isLarge ? 110 : 44,
+                    fit: BoxFit.contain,
+                    errorBuilder: (c, e, s) => const SizedBox(height: 20),
+                  ),
+                ),
+                const SizedBox(height: 4),
+              ],
             ),
           ),
           Positioned(
@@ -413,13 +439,27 @@ class _HomeScreenState extends State<HomeScreen> {
             left: isLarge ? null : 0,
             right: isLarge ? 10 : null,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
               decoration: BoxDecoration(
                 color: isLarge ? Colors.white : const Color(0xFFD66046),
-                borderRadius: isLarge ? BorderRadius.circular(20) : const BorderRadius.only(topRight: Radius.circular(8), bottomLeft: Radius.circular(12)),
+                borderRadius: isLarge
+                    ? BorderRadius.circular(16)
+                    : const BorderRadius.only(
+                        topRight: Radius.circular(8),
+                        bottomLeft: Radius.circular(14),
+                      ),
                 boxShadow: isLarge ? [BoxShadow(color: Colors.black12, blurRadius: 4)] : [],
               ),
-              child: Text(price, style: TextStyle(color: isLarge ? Colors.brown : Colors.white, fontWeight: FontWeight.bold, fontSize: isLarge ? 14 : 10), textAlign: TextAlign.center),
+              child: Text(
+                price,
+                style: TextStyle(
+                  color: isLarge ? Colors.brown.shade900 : Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: isLarge ? 13 : 9.5,
+                  height: 1.05,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
         ],
@@ -456,30 +496,123 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildExploreSection() {
+    final featuredCategories = [
+      {'title': 'Pharmacy', 'img': 'assets/icons/cat_pharmacy.jpg', 'color': 0xFFEBF7F5, 'tag': 'UPTO 60%'},
+      {'title': 'Price Drop Zone', 'img': 'assets/icons/cat_all.jpg', 'color': 0xFFEAF8EC, 'tag': '80% OFF'},
+      {'title': 'Beauty Store', 'img': 'assets/icons/Makeup_Beauty.jpg', 'color': 0xFFFDF0F4, 'tag': 'TRENDING'},
+      {'title': 'Baby & Toys', 'img': 'assets/icons/cat_toys.jpg', 'color': 0xFFEFF4FE, 'tag': 'BEST VALUE'},
+      {'title': 'Zepto Cafe', 'img': 'assets/icons/Zepto_cafe.jpg', 'color': 0xFFFFF6EB, 'tag': 'HOT & FRESH'},
+      {'title': 'Super Mall', 'img': 'assets/icons/cat_electronics.jpg', 'color': 0xFFF3EDFD, 'tag': 'NEW'},
+      {'title': 'Fresh Fruits & Veg', 'img': 'assets/icons/fruits_veg.jpg', 'color': 0xFFEBF8EE, 'tag': 'DAILY'},
+      {'title': 'Munchies & Snacks', 'img': 'assets/icons/Munchies.jpg', 'color': 0xFFFEF2E8, 'tag': 'CRAVINGS'},
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('Explore'),
+        _buildSectionTitle('Featured'),
+        SizedBox(
+          height: 104,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            itemCount: featuredCategories.length,
+            itemBuilder: (context, index) {
+              final cat = featuredCategories[index];
+              return InkWell(
+                onTap: () {
+                  final title = cat['title'] as String;
+                  if (title.contains('Cafe')) {
+                    Get.toNamed('/cafe');
+                  } else if (title.contains('Mall')) {
+                    Get.toNamed('/super-mall');
+                  } else {
+                    Get.to(() => CategoryScreen(categoryName: title));
+                  }
+                },
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  width: 78,
+                  margin: const EdgeInsets.only(right: 14),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 64,
+                        height: 64,
+                        decoration: BoxDecoration(
+                          color: Color(cat['color'] as int),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.06),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: ClipOval(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Image.asset(
+                              cat['img'] as String,
+                              fit: BoxFit.contain,
+                              errorBuilder: (c, e, s) => const Icon(
+                                Icons.category_outlined,
+                                color: Colors.grey,
+                                size: 28,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        cat['title'] as String,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF262C34),
+                          height: 1.15,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 14),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
             children: [
-              Expanded(flex: 1, child: _buildExploreCard('Ganesha', 'assets/icons/Pooja_needs.jpg')),
-              const SizedBox(width: 12),
-              Expanded(flex: 2, child: _buildExploreCard('select\nGourmet finds', 'assets/icons/Icecreams_more.jpg', isWide: true)),
+              Expanded(
+                flex: 1,
+                child: _buildExploreCard('Zepto Cafe', 'assets/icons/Zepto_cafe.jpg'),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                flex: 2,
+                child: _buildExploreCard('select\nGourmet finds', 'assets/icons/Icecreams_more.jpg', isWide: true),
+              ),
             ],
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
             children: [
-              Expanded(child: _buildExploreCard('Zepto Cafe', 'assets/icons/Zepto_cafe.jpg')),
-              const SizedBox(width: 12),
               Expanded(child: _buildExploreCard('Super Mall', 'assets/icons/cat_electronics.jpg')),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(child: _buildExploreCard('Fresh', 'assets/icons/fruits_veg.jpg')),
+              const SizedBox(width: 10),
+              Expanded(child: _buildExploreCard('Price Drop', 'assets/icons/cat_all.jpg')),
             ],
           ),
         ),
@@ -490,44 +623,95 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildExploreCard(String title, String img, {bool isWide = false}) {
     return GestureDetector(
       onTap: () {
-        if (title.contains('select')) Get.toNamed('/select');
-        else if (title.contains('Cafe')) Get.toNamed('/cafe');
-        else if (title.contains('Mall')) Get.toNamed('/super-mall');
-        else Get.to(() => CategoryScreen(categoryName: title));
+        if (title.contains('select')) {
+          Get.toNamed('/select');
+        } else if (title.contains('Cafe')) {
+          Get.toNamed('/cafe');
+        } else if (title.contains('Mall')) {
+          Get.toNamed('/super-mall');
+        } else {
+          Get.to(() => CategoryScreen(categoryName: title));
+        }
       },
       child: Container(
-        height: 100,
+        height: 94,
         decoration: BoxDecoration(
-          color: Colors.pink.shade50.withOpacity(0.5),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.pink.shade100, width: 0.5),
+          color: isWide ? const Color(0xFFFBF6EF) : const Color(0xFFF9F7FB),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isWide ? const Color(0xFFEEDCC8) : const Color(0xFFEAE2F3),
+            width: 0.8,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Stack(
           children: [
             Center(
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 24.0),
-                child: Image.asset(img, height: 60, errorBuilder: (c,e,s) => const Icon(Icons.image, size: 40)),
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: Image.asset(
+                  img,
+                  height: 48,
+                  width: 48,
+                  fit: BoxFit.contain,
+                  errorBuilder: (c, e, s) => const Icon(Icons.image, size: 36, color: Colors.grey),
+                ),
               ),
             ),
             Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: isWide 
-                  ? Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                      child: Text('Gourmet finds', style: TextStyle(fontSize: 10, color: Colors.brown.shade800)),
-                    )
-                  : Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87)),
+                padding: const EdgeInsets.only(bottom: 6.0, left: 4.0, right: 4.0),
+                child: isWide
+                    ? Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 2),
+                          ],
+                        ),
+                        child: Text(
+                          'Gourmet finds',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.brown.shade800,
+                          ),
+                        ),
+                      )
+                    : Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11.5,
+                          color: Color(0xFF2B303A),
+                        ),
+                      ),
               ),
             ),
             if (isWide)
               const Positioned(
-                top: 12,
-                left: 12,
-                child: Text('select', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w300, color: Color(0xFF5D4037))),
+                top: 8,
+                left: 10,
+                child: Text(
+                  'select',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w400,
+                    fontStyle: FontStyle.italic,
+                    color: Color(0xFF5D4037),
+                  ),
+                ),
               ),
           ],
         ),
@@ -536,91 +720,162 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCouponsAndOffers() {
-    final offers = [
-      {'title': 'FLAT\n₹50 OFF', 'sub': 'above ₹899'},
-      {'title': 'FLAT\n₹100 OFF', 'sub': 'above ₹1499'},
-      {'title': 'FLAT\n₹150 OFF', 'sub': 'above ₹2099'},
-      {'title': 'FLAT\n₹200 OFF', 'sub': 'above ₹2699'},
-    ];
+    final defaultCoupons = CouponData.defaultCoupons;
+    final bankOffers = CouponData.bankOffers;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionTitle('Coupons & Offers'),
         SizedBox(
-          height: 80,
+          height: 84,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            itemCount: offers.length,
+            itemCount: defaultCoupons.length,
             itemBuilder: (context, index) {
-              return Container(
-                width: 90,
-                margin: const EdgeInsets.only(right: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE8F8F0),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFBCE6D0)),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(color: Color(0xFF1CB469), shape: BoxShape.circle),
-                      child: const Icon(Icons.percent, color: Colors.white, size: 12),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(offers[index]['title']!, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, height: 1.1)),
-                    const SizedBox(height: 4),
-                    Container(
-                      width: double.infinity,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(11), bottomRight: Radius.circular(11)),
+              final coupon = defaultCoupons[index];
+              return InkWell(
+                onTap: () => CouponDetailsBottomSheet.show(context, coupon),
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: 92,
+                  margin: const EdgeInsets.only(right: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE8F8F0),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFBCE6D0)),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF1CB469),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.percent, color: Colors.white, size: 12),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Text(offers[index]['sub']!, textAlign: TextAlign.center, style: const TextStyle(fontSize: 10, color: Colors.black54)),
-                    ),
-                  ],
+                      const SizedBox(height: 3),
+                      Text(
+                        coupon.shortTitle,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11.5,
+                          height: 1.1,
+                          color: Color(0xFF1B2A1E),
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Container(
+                        width: double.infinity,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(11),
+                            bottomRight: Radius.circular(11),
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 3),
+                        child: Text(
+                          coupon.subtitle,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.black54,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
           ),
         ),
-        const SizedBox(height: 16),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Container(
-            height: 60,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF0F7FF),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFD6E8FC)),
-            ),
-            child: Row(
-              children: [
-                const SizedBox(width: 12),
-                Container(
-                  width: 40, height: 40,
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
-                  child: const Icon(Icons.account_balance, color: Colors.orange), // BHIM placeholder
-                ),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
+        const SizedBox(height: 14),
+        SizedBox(
+          height: 64,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            itemCount: bankOffers.length,
+            itemBuilder: (context, index) {
+              final offer = bankOffers[index];
+              return InkWell(
+                onTap: () => CouponDetailsBottomSheet.show(context, offer),
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.85,
+                  margin: const EdgeInsets.only(right: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: index % 2 == 0 ? const Color(0xFFF0F7FF) : const Color(0xFFFDF4E7),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: index % 2 == 0 ? const Color(0xFFD6E8FC) : const Color(0xFFF6DEC2),
+                    ),
+                  ),
+                  child: Row(
                     children: [
-                      Text('Get upto ₹50 instant\ncashback with BHIM App', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, height: 1.2)),
-                      Text('Valid on orders above ₹99', style: TextStyle(fontSize: 10, color: Colors.black54)),
+                      Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.04),
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          index == 0
+                              ? Icons.account_balance
+                              : index == 1
+                                  ? Icons.shopping_bag_outlined
+                                  : index == 2
+                                      ? Icons.credit_card
+                                      : Icons.account_balance_wallet,
+                          color: index % 2 == 0 ? Colors.orange.shade700 : Colors.indigo.shade700,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              offer.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11.5,
+                                color: Color(0xFF1F2937),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              offer.bankSubtitle ?? offer.subtitle,
+                              style: const TextStyle(fontSize: 10, color: Colors.black54),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right, color: Colors.grey),
-                const SizedBox(width: 8),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ],
@@ -711,19 +966,6 @@ class _HomeScreenState extends State<HomeScreen> {
           }),
         ),
       ],
-    );
-  }
-
-  Widget _buildTab(String title, bool isSelected) {
-    return Container(
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? Colors.white : Colors.transparent,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isSelected ? const Color(0xFFF0145A) : Colors.transparent),
-      ),
-      child: Text(title, style: TextStyle(color: isSelected ? const Color(0xFFF0145A) : Colors.black54, fontWeight: FontWeight.bold, fontSize: 13)),
     );
   }
 
@@ -1091,73 +1333,130 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildProductCard(ProductModel product, CartController cartController, {Color? bgColor}) {
     return Container(
-      width: 140,
+      width: 142,
       margin: const EdgeInsets.only(right: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.grey.shade200, width: 0.8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 110,
+            height: 114,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: bgColor ?? Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(12),
+              color: bgColor ?? const Color(0xFFF8FAFC),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
             ),
             child: Stack(
               children: [
                 Center(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
                       child: Image.network(
                         product.networkImage,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: Colors.grey, size: 40),
+                        fit: BoxFit.contain,
+                        height: 90,
+                        width: 90,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: Colors.grey.shade100,
+                          child: const Icon(Icons.shopping_bag_outlined, color: Colors.grey, size: 36),
+                        ),
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            color: Colors.grey.shade100,
+                            child: const Center(
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.pinkAccent),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ),
                 ),
                 Positioned(
-                  bottom: -10,
-                  right: 8,
+                  top: 6,
+                  left: 6,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.06),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.timer_outlined, size: 10, color: Color(0xFF1CB469)),
+                        SizedBox(width: 2),
+                        Text(
+                          '8 MINS',
+                          style: TextStyle(fontSize: 8.5, fontWeight: FontWeight.w800, color: Color(0xFF1CB469)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 6,
+                  right: 6,
                   child: _buildAddButton(product, cartController),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 12),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                      decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(4)),
-                      child: Text('₹${product.price.toInt()}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10)),
+                    Text(
+                      '₹${product.price.toInt()}',
+                      style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: Colors.black87),
                     ),
-                    const SizedBox(width: 4),
-                    Text('₹${(product.price * 1.5).toInt()}', style: const TextStyle(color: Colors.grey, decoration: TextDecoration.lineThrough, fontSize: 10)),
+                    const SizedBox(width: 5),
+                    Text(
+                      '₹${(product.price * 1.3).toInt()}',
+                      style: TextStyle(color: Colors.grey.shade400, decoration: TextDecoration.lineThrough, fontSize: 11),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 3),
                 Text(
                   product.name,
-                  style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12, height: 1.2),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '1 pack',
-                  style: const TextStyle(color: Colors.grey, fontSize: 11),
+                  product.description.isNotEmpty ? product.description : '1 pack',
+                  style: TextStyle(color: Colors.grey.shade500, fontSize: 10.5),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -1173,23 +1472,36 @@ class _HomeScreenState extends State<HomeScreen> {
       if (quantity == 0) {
         return InkWell(
           onTap: () => cartController.addToCart(product),
+          borderRadius: BorderRadius.circular(8),
           child: Container(
-            padding: const EdgeInsets.all(4),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border.all(color: const Color(0xFFF0145A)),
+              border: Border.all(color: const Color(0xFFFF006E), width: 1.2),
               borderRadius: BorderRadius.circular(8),
-              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+              boxShadow: [
+                BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 4, offset: const Offset(0, 2)),
+              ],
             ),
-            child: const Icon(Icons.add, color: Color(0xFFF0145A), size: 20),
+            child: const Text(
+              'ADD',
+              style: TextStyle(
+                color: Color(0xFFFF006E),
+                fontWeight: FontWeight.w800,
+                fontSize: 11.5,
+              ),
+            ),
           ),
         );
       } else {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
           decoration: BoxDecoration(
-            color: const Color(0xFFF0145A),
+            color: const Color(0xFFFF006E),
             borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 4, offset: const Offset(0, 2)),
+            ],
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -1201,7 +1513,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Icon(Icons.remove, color: Colors.white, size: 14),
                 ),
               ),
-              Text('$quantity', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  '$quantity',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12),
+                ),
+              ),
               InkWell(
                 onTap: () => cartController.addToCart(product),
                 child: const Padding(

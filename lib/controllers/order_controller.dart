@@ -116,6 +116,8 @@ class OrderController extends GetxController {
     required List<CartItemModel> cartItems,
     required double totalAmount,
     required String address,
+    String? appliedCoupon,
+    double? couponDiscount,
   }) async {
     final now = DateTime.now();
     final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -129,6 +131,8 @@ class OrderController extends GetxController {
       'totalAmount': totalAmount,
       'placedAt': dateStr,
       'address': address,
+      'appliedCoupon': appliedCoupon ?? '',
+      'couponDiscount': couponDiscount ?? 0.0,
       'items': cartItems.map((item) => {
         'name': item.product.name,
         'image': item.product.networkImage,

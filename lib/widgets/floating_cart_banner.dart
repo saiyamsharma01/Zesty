@@ -124,17 +124,21 @@ class FloatingCartBanner extends StatelessWidget {
                             width: 32,
                             height: 32,
                             decoration: BoxDecoration(
-                              color: Colors.orange.shade50,
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(6),
                               child: cartController.items.values.first.product.networkImage.isNotEmpty
-                                  ? Image.network(
-                                      cartController.items.values.first.product.networkImage,
-                                      fit: BoxFit.cover,
+                                  ? Padding(
+                                      padding: const EdgeInsets.all(2.0),
+                                      child: Image.network(
+                                        cartController.items.values.first.product.networkImage,
+                                        fit: BoxFit.contain,
+                                        errorBuilder: (c, e, s) => const Icon(Icons.shopping_bag, size: 18, color: Colors.orange),
+                                      ),
                                     )
-                                  : const Icon(Icons.image, size: 20, color: Colors.grey),
+                                  : const Icon(Icons.shopping_bag, size: 18, color: Colors.orange),
                             ),
                           ),
                           const SizedBox(width: 8),

@@ -442,16 +442,19 @@ class _YourOrdersScreenState extends State<YourOrdersScreen> {
                 height: 125,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
+                  color: const Color(0xFFF8FAFC),
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                 ),
                 child: ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                  child: Image.network(
-                    image,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => const Center(
-                      child: Icon(Icons.fastfood, color: Colors.grey),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Image.network(
+                      image,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) => const Center(
+                        child: Icon(Icons.fastfood, color: Colors.grey),
+                      ),
                     ),
                   ),
                 ),

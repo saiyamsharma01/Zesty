@@ -67,17 +67,21 @@ class ManageProductsScreen extends StatelessWidget {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
+                        color: const Color(0xFFF8FAFC),
                         borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade200, width: 0.8),
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          product.networkImage,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(Icons.image_not_supported, color: Colors.grey);
-                          },
+                        child: Padding(
+                          padding: const EdgeInsets.all(6.0),
+                          child: Image.network(
+                            product.networkImage,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(Icons.image_not_supported, color: Colors.grey);
+                            },
+                          ),
                         ),
                       ),
                     ),
