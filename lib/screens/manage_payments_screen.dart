@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../controllers/auth_controller.dart';
 
 class ManagePaymentsScreen extends StatefulWidget {
   const ManagePaymentsScreen({super.key});
@@ -539,7 +540,9 @@ class _ManagePaymentsScreenState extends State<ManagePaymentsScreen> {
       });
       Get.snackbar('Amazon Pay', 'Wallet unlinked successfully');
     } else {
-      final phoneCtrl = TextEditingController(text: '9876543210');
+      final authCtrl = Get.isRegistered<AuthController>() ? Get.find<AuthController>() : null;
+      final rawPhone = authCtrl?.userPhone.value.replaceAll('+91', '').replaceAll(' ', '').trim() ?? '';
+      final phoneCtrl = TextEditingController(text: rawPhone);
       Get.bottomSheet(
         Container(
           padding: const EdgeInsets.all(20),
@@ -560,6 +563,7 @@ class _ManagePaymentsScreenState extends State<ManagePaymentsScreen> {
                 keyboardType: TextInputType.phone,
                 decoration: const InputDecoration(
                   prefixText: '+91 ',
+                  hintText: 'Enter 10-digit mobile number',
                   border: OutlineInputBorder(),
                 ),
               ),

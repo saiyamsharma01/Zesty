@@ -183,17 +183,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Obx(() {
                 final phone = authController.userPhone.value.trim();
                 final email = authController.userEmail.value.trim();
-                final displayContact = phone.isNotEmpty
-                    ? phone
-                    : (email.isNotEmpty ? email : '+91 62397 09216');
-                return Text(
-                  displayContact,
-                  style: TextStyle(
-                    fontSize: 13.5,
-                    color: Colors.grey.shade700,
-                    fontWeight: FontWeight.w500,
-                  ),
-                );
+                if (phone.isNotEmpty) {
+                  return Text(
+                    phone,
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  );
+                } else if (email.isNotEmpty) {
+                  return Text(
+                    email,
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  );
+                } else {
+                  return GestureDetector(
+                    onTap: _showEditProfileSheet,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Add Phone Number',
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.edit_outlined,
+                          size: 13,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ],
+                    ),
+                  );
+                }
               }),
             ],
           ),

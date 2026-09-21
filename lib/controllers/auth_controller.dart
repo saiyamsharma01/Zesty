@@ -38,9 +38,9 @@ class AuthController extends GetxController {
   final verificationId = ''.obs;
   final phoneNumber = ''.obs;
 
-  // User Profile Observables - zeptoCash defaults strictly to 0.0
-  final userName = 'saiyam'.obs;
-  final userPhone = '+91 62397 09216'.obs;
+  // User Profile Observables - 100% dynamic, defaults empty or 0.0
+  final userName = ''.obs;
+  final userPhone = ''.obs;
   final userEmail = ''.obs;
   final zeptoCash = 0.0.obs;
 
@@ -70,26 +70,14 @@ class AuthController extends GetxController {
 
   Future<void> _loadLocalZeptoCash() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      // Ensure one-time reset of old test balance to 0.0
-      final hasReset = prefs.getBool('zepto_cash_zero_reset_v2') ?? false;
-      if (!hasReset) {
-        zeptoCash.value = 0.0;
-        await prefs.setDouble('zepto_cash_balance', 0.0);
-        await prefs.setBool('zepto_cash_zero_reset_v2', true);
-
-        // Also sync 0.0 to Firestore
-        final user = FirebaseAuth.instance.currentUser;
-        if (user != null) {
-          try {
-            await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
-              {'zeptoCash': 0.0},
-              SetOptions(merge: true),
-            );
-          } catch (_) {}
-        }
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final prefs = await SharedPreferences.getInstance();
+        zeptoCash.value = prefs.getDouble('zepto_cash_balance_${user.uid}') ??
+            prefs.getDouble('zepto_cash_balance') ??
+            0.0;
       } else {
-        zeptoCash.value = prefs.getDouble('zepto_cash_balance') ?? 0.0;
+        zeptoCash.value = 0.0;
       }
     } catch (e) {
       zeptoCash.value = 0.0;
@@ -104,34 +92,48 @@ class AuthController extends GetxController {
           userName.value = user.displayName!;
         } else if (user.email != null && user.email!.isNotEmpty) {
           userName.value = user.email!.split('@').first;
+        } else {
+          userName.value = '';
         }
 
         if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty) {
           userPhone.value = user.phoneNumber!;
+        } else {
+          userPhone.value = '';
         }
+
         if (user.email != null && user.email!.isNotEmpty) {
           userEmail.value = user.email!;
+        } else {
+          userEmail.value = '';
         }
 
         final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
         if (doc.exists && doc.data() != null) {
           final data = doc.data()!;
           if (data['name'] != null && data['name'].toString().isNotEmpty) {
-            userName.value = data['name'];
+            userName.value = data['name'].toString();
           }
           if (data['phone'] != null && data['phone'].toString().isNotEmpty) {
-            userPhone.value = data['phone'];
+            userPhone.value = data['phone'].toString();
           }
           if (data['email'] != null && data['email'].toString().isNotEmpty) {
-            userEmail.value = data['email'];
+            userEmail.value = data['email'].toString();
           }
-          final prefs = await SharedPreferences.getInstance();
-          final hasReset = prefs.getBool('zepto_cash_zero_reset_v2') ?? false;
-          if (hasReset && data['zeptoCash'] != null) {
+          if (data['zeptoCash'] != null) {
             zeptoCash.value = (data['zeptoCash'] as num).toDouble();
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setDouble('zepto_cash_balance_${user.uid}', zeptoCash.value);
             await prefs.setDouble('zepto_cash_balance', zeptoCash.value);
+          } else {
+            zeptoCash.value = 0.0;
           }
         }
+      } else {
+        userName.value = '';
+        userPhone.value = '';
+        userEmail.value = '';
+        zeptoCash.value = 0.0;
       }
     } catch (e) {
       debugPrint('Error fetching user data: $e');
@@ -881,6 +883,11 @@ class AuthController extends GetxController {
 
     verificationId.value = '';
     phoneNumber.value = '';
+
+    userName.value = '';
+    userPhone.value = '';
+    userEmail.value = '';
+    zeptoCash.value = 0.0;
   }
 
   // ============================================================

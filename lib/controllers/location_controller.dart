@@ -47,6 +47,12 @@ class LocationController extends GetxController {
   }
 
   void _seedDefaultAddresses() {
+    final user = FirebaseAuth.instance.currentUser;
+    final phone = user?.phoneNumber ?? '';
+    final name = (user?.displayName != null && user!.displayName!.isNotEmpty)
+        ? user.displayName!
+        : 'User';
+
     savedAddresses.value = [
       {
         'title': 'Other',
@@ -56,8 +62,8 @@ class LocationController extends GetxController {
         'houseNo': '1288',
         'buildingBlock': 'Platinum Hostel',
         'landmark': 'Near Gurudwara',
-        'receiverName': 'User',
-        'receiverPhone': '9876543210',
+        'receiverName': name,
+        'receiverPhone': phone,
       },
       {
         'title': 'Other (2)',
@@ -67,8 +73,8 @@ class LocationController extends GetxController {
         'houseNo': '1895',
         'buildingBlock': '',
         'landmark': 'Phase 5 Park',
-        'receiverName': 'User',
-        'receiverPhone': '9876543210',
+        'receiverName': name,
+        'receiverPhone': phone,
       },
       {
         'title': 'Home',
@@ -78,8 +84,8 @@ class LocationController extends GetxController {
         'houseNo': '1567',
         'buildingBlock': 'Block B',
         'landmark': 'Main Market',
-        'receiverName': 'User',
-        'receiverPhone': '9876543210',
+        'receiverName': name,
+        'receiverPhone': phone,
       },
       {
         'title': 'Work',
@@ -89,8 +95,8 @@ class LocationController extends GetxController {
         'houseNo': '17',
         'buildingBlock': 'CS Dept',
         'landmark': 'Bhandari Bridge',
-        'receiverName': 'Office Desk',
-        'receiverPhone': '9876543210',
+        'receiverName': name,
+        'receiverPhone': phone,
       },
     ];
   }
