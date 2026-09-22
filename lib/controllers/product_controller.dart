@@ -264,6 +264,109 @@ class ProductController extends GetxController {
     return products.where((p) => p.offer.contains('OFF') || p.price > 100).take(8).toList();
   }
 
+  List<ProductModel> getSelectProducts(String category) {
+    if (products.isEmpty) return [];
+    if (category == 'All Select') {
+      final res = products.where((p) => 
+        p.category == 'Fruits & Vegetables' ||
+        p.category == 'Dairy, Bread & Eggs' ||
+        p.category == 'Zepto Cafe' ||
+        p.category == 'Munchies & Snacks' ||
+        nameContains(p, ['Organic', 'Avocado', 'Berry', 'Almond', 'Cheese', 'Paneer', 'Butter', 'Gourmet', 'Greek', 'Olive', 'Dark Chocolate'])
+      ).toList();
+      return res.isNotEmpty ? res : products.take(15).toList();
+    } else if (category == 'Exotic Fruits & Veg') {
+      final res = products.where((p) => 
+        p.category == 'Fruits & Vegetables' || 
+        nameContains(p, ['Avocado', 'Kiwi', 'Blueberry', 'Dragon', 'Broccoli', 'Mushroom', 'Capsicum', 'Apple', 'Orange', 'Banana', 'Tomato'])
+      ).toList();
+      return res.isNotEmpty ? res : products.where((p) => p.category == 'Fruits & Vegetables').toList();
+    } else if (category == 'Organic Dairy') {
+      final res = products.where((p) => 
+        p.category == 'Dairy, Bread & Eggs' || 
+        nameContains(p, ['Milk', 'Paneer', 'Butter', 'Cheese', 'Curd', 'Yogurt', 'Ghee', 'Cream'])
+      ).toList();
+      return res.isNotEmpty ? res : products.where((p) => p.category == 'Dairy, Bread & Eggs').toList();
+    } else if (category == 'Artisan Bakery') {
+      final res = products.where((p) => 
+        nameContains(p, ['Bread', 'Croissant', 'Muffin', 'Cake', 'Cookie', 'Bun', 'Toast', 'Bagel', 'Brownie']) ||
+        p.category == 'Zepto Cafe'
+      ).toList();
+      return res.isNotEmpty ? res : products.where((p) => p.category == 'Zepto Cafe').toList();
+    } else if (category == 'Meat & Protein') {
+      final res = products.where((p) => 
+        p.category == 'Meat, Fish & Eggs' || 
+        nameContains(p, ['Egg', 'Chicken', 'Fish', 'Soya', 'Tofu', 'Paneer', 'Protein', 'Peanut Butter'])
+      ).toList();
+      return res.isNotEmpty ? res : products.take(10).toList();
+    } else if (category == 'Gourmet Chocolates') {
+      final res = products.where((p) => 
+        nameContains(p, ['Chocolate', 'Ferrero', 'Nutella', 'Cadbury', 'Amul Dark', 'Silk', 'Cookie', 'Waffle']) ||
+        p.category == 'Ice Creams & More' ||
+        p.category == 'Munchies & Snacks'
+      ).toList();
+      return res.isNotEmpty ? res : products.where((p) => p.category == 'Munchies & Snacks').toList();
+    }
+    return products.take(12).toList();
+  }
+
+  List<ProductModel> getSuperMallProducts(String category) {
+    if (products.isEmpty) return [];
+    if (category == 'All') {
+      final res = products.where((p) => 
+        p.category == 'Electronics Store' ||
+        p.category == 'Fashion & Lifestyle' ||
+        p.category == 'Home & Living' ||
+        p.category == 'Beauty Store' ||
+        p.category == 'Baby & Toys' ||
+        nameContains(p, ['boAt', 'Headphone', 'Earphone', 'Charger', 'T-Shirt', 'Serum', 'Face Wash', 'Bottle', 'Toy', 'Appliance', 'Shampoo', 'Watch'])
+      ).toList();
+      return res.isNotEmpty ? res : products.where((p) => p.price > 120).toList();
+    } else if (category == 'Electronics & Gadgets') {
+      final res = products.where((p) => 
+        p.category == 'Electronics Store' || 
+        nameContains(p, ['boAt', 'Headphone', 'Earphone', 'Charger', 'Cable', 'Power Bank', 'Bulb', 'USB', 'Speaker', 'Watch', 'Mouse', 'Keyboard', 'Trimmer'])
+      ).toList();
+      return res.isNotEmpty ? res : products.where((p) => p.category == 'Electronics Store').toList();
+    } else if (category == 'Beauty & Personal Care') {
+      final res = products.where((p) => 
+        p.category == 'Beauty Store' || 
+        nameContains(p, ['Serum', 'Face Wash', 'Sunscreen', 'Shampoo', 'Lotion', 'Lipstick', 'Cream', 'Perfume', 'Deodorant', 'Nivea', 'Garnier', 'Dove'])
+      ).toList();
+      return res.isNotEmpty ? res : products.where((p) => p.category == 'Beauty Store').toList();
+    } else if (category == 'Home & Living') {
+      final res = products.where((p) => 
+        p.category == 'Home & Living' || 
+        nameContains(p, ['Bottle', 'Container', 'Bedsheet', 'Towel', 'Mop', 'Hanger', 'Curtain', 'Clock', 'Mat', 'Lamp', 'Pillow'])
+      ).toList();
+      return res.isNotEmpty ? res : products.where((p) => p.category == 'Home & Living').toList();
+    } else if (category == 'Kitchen Appliances') {
+      final res = products.where((p) => 
+        nameContains(p, ['Mixer', 'Grinder', 'Kettle', 'Toaster', 'Pan', 'Cooker', 'Knife', 'Blender', 'Spatula', 'Fryer', 'Plate', 'Glass'])
+      ).toList();
+      return res.isNotEmpty ? res : products.where((p) => p.price > 200).toList();
+    } else if (category == 'Toys & Kids') {
+      final res = products.where((p) => 
+        p.category == 'Baby & Toys' || 
+        nameContains(p, ['Toy', 'Car', 'Doll', 'Game', 'Puzzle', 'Diaper', 'Lego', 'Pencil', 'Book', 'Board'])
+      ).toList();
+      return res.isNotEmpty ? res : products.where((p) => p.category == 'Baby & Toys').toList();
+    }
+    return products.where((p) => p.category == 'Electronics Store' || p.category == 'Fashion & Lifestyle').toList();
+  }
+
+  List<ProductModel> searchProducts(String query) {
+    if (query.trim().isEmpty) return [];
+    final cleanQuery = query.toLowerCase().trim();
+    return products.where((p) {
+      final nameMatch = p.name.toLowerCase().contains(cleanQuery);
+      final catMatch = p.category.toLowerCase().contains(cleanQuery);
+      final descMatch = p.description.toLowerCase().contains(cleanQuery);
+      final offerMatch = p.offer.toLowerCase().contains(cleanQuery);
+      return nameMatch || catMatch || descMatch || offerMatch;
+    }).toList();
+  }
+
   bool nameContains(ProductModel p, List<String> keywords) {
     for (var k in keywords) {
       if (p.name.toLowerCase().contains(k.toLowerCase())) return true;

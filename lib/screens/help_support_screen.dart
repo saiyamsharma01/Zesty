@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/order_controller.dart';
+import '../routes/app_routes.dart';
 
 class HelpSupportScreen extends StatefulWidget {
   const HelpSupportScreen({super.key});
@@ -35,7 +36,11 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
               _buildTopBar(),
               const SizedBox(height: 16),
 
-              // 2. Dynamic Recent Order / Cancelled Order Help Card
+              // 2. 24x7 Live Chat Support Banner
+              _buildLiveChatBanner(),
+              const SizedBox(height: 16),
+
+              // 3. Dynamic Recent Order / Cancelled Order Help Card
               Obx(() {
                 if (orderController.orders.isEmpty) {
                   return const SizedBox.shrink();
@@ -105,6 +110,67 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildLiveChatBanner() {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF3F007D), Color(0xFF6B21A8)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF3F007D).withOpacity(0.25),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => Get.toNamed(Routes.liveChat),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.18),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.support_agent, color: Colors.white, size: 28),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        'Chat with Support',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white),
+                      ),
+                      SizedBox(height: 3),
+                      Text(
+                        'Get instant 24x7 resolution for any queries',
+                        style: TextStyle(fontSize: 12, color: Colors.white70),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 

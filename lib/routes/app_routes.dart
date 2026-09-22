@@ -22,16 +22,20 @@ import '../screens/e_gift_cards_screen.dart';
 import '../screens/add_address_details_screen.dart';
 import '../screens/manage_payments_screen.dart';
 import '../screens/notifications_screen.dart';
+import '../screens/search_screen.dart';
+import '../screens/product_details_screen.dart';
+import '../screens/order_tracking_screen.dart';
+import '../screens/saved_addresses_screen.dart';
+import '../screens/zepto_pass_screen.dart';
+import '../screens/live_chat_support_screen.dart';
 
 class Routes {
   static const String splash = '/';
   static const String login = '/login';
   static const String signup = '/signup';
   static const String home = '/home';
-  static const String forgotPassword =
-      '/forgot-password';
-  static const String verifyEmail =
-      '/verify-email';
+  static const String forgotPassword = '/forgot-password';
+  static const String verifyEmail = '/verify-email';
   static const String phoneAuth = '/phone-auth';
   static const String otp = '/otp';
   static const String select = '/select';
@@ -48,6 +52,12 @@ class Routes {
   static const String addAddressDetails = '/add-address-details';
   static const String managePayments = '/manage-payments';
   static const String notifications = '/notifications';
+  static const String search = '/search';
+  static const String productDetails = '/product-details';
+  static const String orderTracking = '/order-tracking';
+  static const String savedAddresses = '/saved-addresses';
+  static const String zeptoPass = '/zepto-pass';
+  static const String liveChat = '/live-chat';
 }
 
 class AppPages {
@@ -139,6 +149,30 @@ class AppPages {
     GetPage(
       name: Routes.notifications,
       page: () => const NotificationsScreen(),
+    ),
+    GetPage(
+      name: Routes.search,
+      page: () => const SearchScreen(),
+    ),
+    GetPage(
+      name: Routes.productDetails,
+      page: () => const ProductDetailsScreen(),
+    ),
+    GetPage(
+      name: Routes.orderTracking,
+      page: () => const OrderTrackingScreen(),
+    ),
+    GetPage(
+      name: Routes.savedAddresses,
+      page: () => const SavedAddressesScreen(),
+    ),
+    GetPage(
+      name: Routes.zeptoPass,
+      page: () => const ZeptoPassScreen(),
+    ),
+    GetPage(
+      name: Routes.liveChat,
+      page: () => const LiveChatSupportScreen(),
     ),
   ];
 }

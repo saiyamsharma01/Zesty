@@ -421,9 +421,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           _buildDivider(),
           _buildListTileItem(
-            icon: Icons.chat_bubble_outline_rounded,
-            title: 'Help & Support',
-            onTap: () => Get.toNamed(Routes.helpSupport),
+            icon: Icons.workspace_premium_outlined,
+            title: 'Zepto Pass VIP',
+            subtitle: 'Unlimited Free Deliveries & 20% off on Cafe',
+            onTap: () => Get.toNamed(Routes.zeptoPass),
           ),
           _buildDivider(),
           // Dynamic Saved Addresses
@@ -436,7 +437,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: Icons.location_on_outlined,
               title: 'Saved Addresses',
               subtitle: subtitle,
-              onTap: _showSavedAddressesSheet,
+              onTap: () => Get.toNamed(Routes.savedAddresses),
             );
           }),
           _buildDivider(),

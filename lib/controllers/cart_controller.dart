@@ -131,6 +131,9 @@ class CartController extends GetxController {
     return items.containsKey(productId) ? items[productId]!.quantity : 0;
   }
 
+  int getItemQuantity(String productId) => getQuantity(productId);
+  void decrementQuantity(String productId) => removeFromCart(productId);
+
   // Derived getters for Bill Summary
   int get totalItems {
     return items.values.fold(0, (sum, item) => sum + item.quantity);

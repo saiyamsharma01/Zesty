@@ -6,6 +6,7 @@ import '../controllers/product_controller.dart';
 import '../models/product_model.dart';
 import '../widgets/floating_cart_banner.dart';
 import 'help_support_screen.dart';
+import 'order_tracking_screen.dart';
 
 class YourOrdersScreen extends StatefulWidget {
   const YourOrdersScreen({super.key});
@@ -312,25 +313,45 @@ class _YourOrdersScreenState extends State<YourOrdersScreen> {
           const SizedBox(height: 14),
           Divider(height: 1, thickness: 0.8, color: Colors.grey.shade200),
 
-          // Order Again Button
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
-              onTap: () => orderController.reorder(order),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                alignment: Alignment.center,
-                child: const Text(
-                  'Order Again',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFF0145A),
+          // Action Buttons: Track Order & Order Again
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF3F007D),
+                      side: const BorderSide(color: Color(0xFF3F007D), width: 1.2),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    onPressed: () => Get.to(() => OrderTrackingScreen(orderData: order)),
+                    icon: const Icon(Icons.two_wheeler, size: 18),
+                    label: const Text(
+                      'Track Order',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF0145A),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    onPressed: () => orderController.reorder(order),
+                    icon: const Icon(Icons.repeat, size: 16, color: Colors.white),
+                    label: const Text(
+                      'Order Again',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
