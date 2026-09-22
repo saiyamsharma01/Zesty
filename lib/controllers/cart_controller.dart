@@ -14,6 +14,9 @@ class CartController extends GetxController {
 
   // Delivery state
   var selectedDeliveryTime = 'Delivering in 6 mins'.obs;
+  var deliveryInstruction = ''.obs;
+  var tipAmount = 0.0.obs;
+  var feedingIndiaDonation = false.obs;
 
   void addToCart(ProductModel product) {
     if (items.containsKey(product.id)) {
@@ -167,7 +170,12 @@ class CartController extends GetxController {
   }
 
   double get toPay {
-    double total = subTotal + deliveryFee + handlingFee - couponDiscountAmount.value;
+    double total = subTotal +
+        deliveryFee +
+        handlingFee +
+        tipAmount.value +
+        (feedingIndiaDonation.value ? 1.0 : 0.0) -
+        couponDiscountAmount.value;
     return total < 0 ? 0 : total;
   }
 

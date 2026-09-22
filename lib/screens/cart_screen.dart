@@ -80,9 +80,17 @@ class _CartScreenState extends State<CartScreen> {
                     const SizedBox(height: 12),
                     _buildDeliverySection(),
                     const SizedBox(height: 12),
+                    _buildDeliveryInstructions(),
+                    const SizedBox(height: 12),
+                    _buildDeliveryPartnerTip(),
+                    const SizedBox(height: 12),
+                    _buildFeedingIndiaSection(),
+                    const SizedBox(height: 12),
                     _buildBillSummary(),
                     const SizedBox(height: 12),
                     _buildSavingsBreakdown(),
+                    const SizedBox(height: 12),
+                    _buildCancellationPolicyCard(),
                     const SizedBox(height: 32),
                   ],
                 ),
@@ -735,6 +743,227 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  Widget _buildDeliveryInstructions() {
+    final instructions = [
+      {'title': 'Leave at door', 'icon': Icons.door_front_door_outlined},
+      {'title': 'Don\'t ring bell', 'icon': Icons.notifications_off_outlined},
+      {'title': 'Avoid calling', 'icon': Icons.phone_disabled_outlined},
+      {'title': 'Leave with guard', 'icon': Icons.security_outlined},
+    ];
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.directions_bike_outlined, size: 20, color: Color(0xFF3F007D)),
+              SizedBox(width: 8),
+              Text('Delivery Instructions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: instructions.map((inst) {
+              return Obx(() {
+                final isSelected = cartController.deliveryInstruction.value == inst['title'];
+                return InkWell(
+                  onTap: () {
+                    if (isSelected) {
+                      cartController.deliveryInstruction.value = '';
+                    } else {
+                      cartController.deliveryInstruction.value = inst['title'] as String;
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isSelected ? const Color(0xFFF3E8FF) : Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isSelected ? const Color(0xFF9852F9) : Colors.grey.shade300,
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          inst['icon'] as IconData,
+                          size: 14,
+                          color: isSelected ? const Color(0xFF9852F9) : Colors.grey.shade700,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          inst['title'] as String,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                            color: isSelected ? const Color(0xFF9852F9) : Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              });
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDeliveryPartnerTip() {
+    final tips = [10.0, 20.0, 30.0, 50.0];
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.volunteer_activism_outlined, size: 20, color: Color(0xFFF0145A)),
+              SizedBox(width: 8),
+              Text('Delivery Partner Tip', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '100% of your tip goes directly to your delivery partner.',
+            style: TextStyle(fontSize: 11.5, color: Colors.grey.shade600),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: tips.map((tip) {
+              return Expanded(
+                child: Obx(() {
+                  final isSelected = cartController.tipAmount.value == tip;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 6.0),
+                    child: InkWell(
+                      onTap: () {
+                        if (isSelected) {
+                          cartController.tipAmount.value = 0.0;
+                        } else {
+                          cartController.tipAmount.value = tip;
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isSelected ? const Color(0xFFFFF0F5) : Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isSelected ? const Color(0xFFF0145A) : Colors.grey.shade300,
+                            width: 1,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '₹${tip.toInt()}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: isSelected ? FontWeight.w900 : FontWeight.bold,
+                              color: isSelected ? const Color(0xFFF0145A) : Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeedingIndiaSection() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Obx(() {
+        return Row(
+          children: [
+            Checkbox(
+              value: cartController.feedingIndiaDonation.value,
+              onChanged: (val) {
+                cartController.feedingIndiaDonation.value = val ?? false;
+              },
+              activeColor: const Color(0xFFF0145A),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Feeding India Donation (₹1)',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
+                  Text(
+                    'Help feed a person in need with every meal.',
+                    style: TextStyle(fontSize: 11.5, color: Colors.grey.shade600),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      }),
+    );
+  }
+
+  Widget _buildCancellationPolicyCard() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.shield_outlined, size: 18, color: Colors.green),
+              SizedBox(width: 8),
+              Text('Cancellation Policy', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '100% refund for cancellations before your order is packed at dark store. Instant refunds credited directly to Zepto Cash.',
+            style: TextStyle(fontSize: 11.5, color: Colors.grey.shade600, height: 1.35),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildBillSummary() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -747,10 +976,10 @@ class _CartScreenState extends State<CartScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: [
+            children: const [
               Icon(Icons.receipt_long_outlined, size: 20),
-              const SizedBox(width: 8),
-              const Text('Bill Summary', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              SizedBox(width: 8),
+              Text('Bill Summary', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
             ],
           ),
           const SizedBox(height: 16),
@@ -759,6 +988,14 @@ class _CartScreenState extends State<CartScreen> {
           _buildBillRow('Delivery Fee', '₹30', cartController.deliveryFee == 0 ? 'FREE' : '₹${cartController.deliveryFee.toInt()}', isFree: cartController.deliveryFee == 0),
           const SizedBox(height: 12),
           _buildBillRow('Handling Fee', '₹10', cartController.handlingFee == 0 ? 'FREE' : '₹${cartController.handlingFee.toInt()}', isFree: cartController.handlingFee == 0, isDashed: true),
+          if (cartController.tipAmount.value > 0) ...[
+            const SizedBox(height: 12),
+            _buildBillRow('Delivery Partner Tip', '', '₹${cartController.tipAmount.value.toInt()}'),
+          ],
+          if (cartController.feedingIndiaDonation.value) ...[
+            const SizedBox(height: 12),
+            _buildBillRow('Feeding India Donation', '', '₹1'),
+          ],
           if (cartController.appliedCoupon.isNotEmpty && cartController.couponDiscountAmount.value > 0) ...[
             const SizedBox(height: 12),
             _buildBillRow('Coupon (${cartController.appliedCoupon.value}) Discount', '', '-₹${cartController.couponDiscountAmount.value.toInt()}', isFree: true),
@@ -773,7 +1010,7 @@ class _CartScreenState extends State<CartScreen> {
               const Text('To Pay', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
               Row(
                 children: [
-                  Text('₹${(cartController.originalSubTotal + 40).toInt()}', style: TextStyle(color: Colors.grey.shade500, decoration: TextDecoration.lineThrough, fontSize: 14)),
+                  Text('₹${(cartController.originalSubTotal + 40 + cartController.tipAmount.value + (cartController.feedingIndiaDonation.value ? 1 : 0)).toInt()}', style: TextStyle(color: Colors.grey.shade500, decoration: TextDecoration.lineThrough, fontSize: 14)),
                   const SizedBox(width: 6),
                   Text('₹${cartController.toPay.toInt()}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 ],
