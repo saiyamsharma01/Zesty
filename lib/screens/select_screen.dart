@@ -5,7 +5,7 @@ import '../controllers/product_controller.dart';
 import '../models/product_model.dart';
 import '../widgets/floating_cart_banner.dart';
 import '../widgets/global_offer_banner.dart';
-import 'product_details_screen.dart';
+import '../widgets/product_card.dart';
 
 class SelectScreen extends StatefulWidget {
   const SelectScreen({super.key});
@@ -475,181 +475,12 @@ class _SelectScreenState extends State<SelectScreen> {
   }
 
   Widget _buildSelectProductCard(ProductModel product) {
-    final originalPrice = (product.price * 1.3).toInt();
-
-    return GestureDetector(
-      onTap: () => Get.to(() => ProductDetailsScreen(product: product)),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFFEFE8DC), width: 1.2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Thumbnail with Select Badge
-            Expanded(
-              child: Stack(
-                children: [
-                  Center(
-                    child: Hero(
-                      tag: 'product_img_${product.id}',
-                      child: product.networkImage.startsWith('http')
-                          ? Image.network(product.networkImage, fit: BoxFit.contain)
-                          : Image.asset(product.networkImage, fit: BoxFit.contain),
-                    ),
-                  ),
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2A1B18),
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: const Color(0xFFE5C378), width: 0.8),
-                      ),
-                      child: const Text(
-                        'SELECT',
-                        style: TextStyle(
-                          color: Color(0xFFE5C378),
-                          fontSize: 8.5,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // Product Name
-            Text(
-              product.name,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF1F2937),
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              'Artisan Batch',
-              style: TextStyle(
-                fontSize: 11,
-                color: Colors.grey.shade600,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // Price & Add to Cart
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '₹${product.price.toInt()}',
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF2A1B18),
-                      ),
-                    ),
-                    Text(
-                      '₹$originalPrice',
-                      style: TextStyle(
-                        fontSize: 11,
-                        decoration: TextDecoration.lineThrough,
-                        color: Colors.grey.shade400,
-                      ),
-                    ),
-                  ],
-                ),
-
-                // Cart Counter Button
-                Obx(() {
-                  final qty = cartController.getItemQuantity(product.id);
-                  if (qty == 0) {
-                    return SizedBox(
-                      height: 32,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2A1B18),
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(horizontal: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6),
-                            side: const BorderSide(color: Color(0xFFE5C378), width: 1),
-                          ),
-                        ),
-                        onPressed: () => cartController.addToCart(product),
-                        child: const Text(
-                          'ADD',
-                          style: TextStyle(
-                            color: Color(0xFFE5C378),
-                            fontWeight: FontWeight.w900,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    );
-                  }
-
-                  return Container(
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2A1B18),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFFE5C378), width: 1),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.remove, size: 14, color: Color(0xFFE5C378)),
-                          onPressed: () => cartController.decrementQuantity(product.id),
-                          constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                          padding: EdgeInsets.zero,
-                        ),
-                        Text(
-                          '$qty',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.add, size: 14, color: Color(0xFFE5C378)),
-                          onPressed: () => cartController.addToCart(product),
-                          constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                          padding: EdgeInsets.zero,
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ],
-        ),
-      ),
+    return ProductCard(
+      product: product,
+      badgeText: 'select',
+      badgeColor: const Color(0xFF7A3614),
+      width: null,
+      imageHeight: 125,
     );
   }
 }

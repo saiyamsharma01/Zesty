@@ -5,7 +5,7 @@ import '../controllers/product_controller.dart';
 import '../models/product_model.dart';
 import '../widgets/floating_cart_banner.dart';
 import '../widgets/global_offer_banner.dart';
-import 'product_details_screen.dart';
+import '../widgets/product_card.dart';
 
 class SuperMallScreen extends StatefulWidget {
   const SuperMallScreen({super.key});
@@ -358,154 +358,12 @@ class _SuperMallScreenState extends State<SuperMallScreen> {
   }
 
   Widget _buildMallProductCard(ProductModel product) {
-    final originalPrice = (product.price * 1.35).toInt();
-
-    return GestureDetector(
-      onTap: () => Get.to(() => ProductDetailsScreen(product: product)),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.grey.shade200, width: 1.1),
-        ),
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Thumbnail
-            Expanded(
-              child: Stack(
-                children: [
-                  Center(
-                    child: Hero(
-                      tag: 'product_img_${product.id}',
-                      child: product.networkImage.startsWith('http')
-                          ? Image.network(product.networkImage, fit: BoxFit.contain)
-                          : Image.asset(product.networkImage, fit: BoxFit.contain),
-                    ),
-                  ),
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1D4ED8),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Text(
-                        'SUPERMALL',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 8,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // Name
-            Text(
-              product.name,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF1F2937),
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              'Express Dispatch',
-              style: TextStyle(
-                fontSize: 10.5,
-                color: Colors.grey.shade600,
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // Price & Cart Button
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '₹${product.price.toInt()}',
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    Text(
-                      '₹$originalPrice',
-                      style: TextStyle(
-                        fontSize: 11,
-                        decoration: TextDecoration.lineThrough,
-                        color: Colors.grey.shade400,
-                      ),
-                    ),
-                  ],
-                ),
-                Obx(() {
-                  final qty = cartController.getItemQuantity(product.id);
-                  if (qty == 0) {
-                    return SizedBox(
-                      height: 32,
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFF1D4ED8),
-                          side: const BorderSide(color: Color(0xFF1D4ED8), width: 1.2),
-                          padding: const EdgeInsets.symmetric(horizontal: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                        ),
-                        onPressed: () => cartController.addToCart(product),
-                        child: const Text('ADD', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12)),
-                      ),
-                    );
-                  }
-
-                  return Container(
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1D4ED8),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.remove, size: 14, color: Colors.white),
-                          onPressed: () => cartController.decrementQuantity(product.id),
-                          constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                          padding: EdgeInsets.zero,
-                        ),
-                        Text(
-                          '$qty',
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.add, size: 14, color: Colors.white),
-                          onPressed: () => cartController.addToCart(product),
-                          constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                          padding: EdgeInsets.zero,
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ],
-        ),
-      ),
+    return ProductCard(
+      product: product,
+      badgeText: 'SUPERMALL',
+      badgeColor: const Color(0xFF1D4ED8),
+      width: null,
+      imageHeight: 125,
     );
   }
 }

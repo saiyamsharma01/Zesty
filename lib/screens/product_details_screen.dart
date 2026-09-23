@@ -4,6 +4,7 @@ import '../controllers/cart_controller.dart';
 import '../controllers/product_controller.dart';
 import '../models/product_model.dart';
 import '../widgets/floating_cart_banner.dart';
+import '../widgets/product_card.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final ProductModel? product;
@@ -420,7 +421,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       ),
                       const SizedBox(height: 14),
                       SizedBox(
-                        height: 200,
+                        height: 205,
                         child: Obx(() {
                           final similar = productController.getProductsByCategory(item.category)
                               .where((p) => p.id != item.id)
@@ -437,42 +438,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                             separatorBuilder: (_, __) => const SizedBox(width: 12),
                             itemBuilder: (context, index) {
                               final p = similar[index];
-                              return GestureDetector(
+                              return ProductCard(
+                                product: p,
+                                width: 140,
+                                imageHeight: 114,
+                                margin: EdgeInsets.zero,
                                 onTap: () {
                                   Get.to(() => ProductDetailsScreen(product: p), preventDuplicates: false);
                                 },
-                                child: Container(
-                                  width: 130,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: Colors.grey.shade200),
-                                  ),
-                                  padding: const EdgeInsets.all(8),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: Center(
-                                          child: p.networkImage.startsWith('http')
-                                              ? Image.network(p.networkImage, fit: BoxFit.contain)
-                                              : Image.asset(p.networkImage, fit: BoxFit.contain),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        p.name,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        '₹${p.price.toInt()}',
-                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
-                                      ),
-                                    ],
-                                  ),
-                                ),
                               );
                             },
                           );

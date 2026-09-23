@@ -4,7 +4,7 @@ import '../controllers/cart_controller.dart';
 import '../controllers/product_controller.dart';
 import '../models/product_model.dart';
 import '../widgets/floating_cart_banner.dart';
-import 'product_details_screen.dart';
+import '../widgets/product_card.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -307,151 +307,21 @@ class _SearchScreenState extends State<SearchScreen> {
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            mainAxisSpacing: 12,
+            mainAxisSpacing: 14,
             crossAxisSpacing: 12,
-            childAspectRatio: 0.65,
+            childAspectRatio: 0.70,
           ),
           itemCount: results.length,
           itemBuilder: (context, index) {
             final product = results[index];
-            return _buildProductSearchCard(product);
+            return ProductCard(
+              product: product,
+              width: null,
+              imageHeight: 125,
+            );
           },
         ),
       ],
-    );
-  }
-
-  Widget _buildProductSearchCard(ProductModel product) {
-    final originalPrice = (product.price * 1.25).toInt();
-
-    return GestureDetector(
-      onTap: () => Get.to(() => ProductDetailsScreen(product: product)),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200, width: 1.1),
-        ),
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image + Offer Badge
-            Expanded(
-              child: Stack(
-                children: [
-                  Center(
-                    child: Hero(
-                      tag: 'product_img_${product.id}',
-                      child: product.networkImage.startsWith('http')
-                          ? Image.network(product.networkImage, fit: BoxFit.contain)
-                          : Image.asset(product.networkImage, fit: BoxFit.contain),
-                    ),
-                  ),
-                  if (product.offer.isNotEmpty)
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF9852F9),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          product.offer,
-                          style: const TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.w800),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // Title
-            Text(
-              product.name,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF1F2937)),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              '1 unit',
-              style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
-            ),
-            const SizedBox(height: 8),
-
-            // Price & Add Button
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '₹${product.price.toInt()}',
-                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: Colors.black87),
-                    ),
-                    Text(
-                      '₹$originalPrice',
-                      style: TextStyle(fontSize: 11, decoration: TextDecoration.lineThrough, color: Colors.grey.shade400),
-                    ),
-                  ],
-                ),
-                Obx(() {
-                  final qty = cartController.getItemQuantity(product.id);
-                  if (qty == 0) {
-                    return SizedBox(
-                      height: 32,
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFFF0145A),
-                          side: const BorderSide(color: Color(0xFFF0145A), width: 1.2),
-                          padding: const EdgeInsets.symmetric(horizontal: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                        ),
-                        onPressed: () => cartController.addToCart(product),
-                        child: const Text('ADD', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12)),
-                      ),
-                    );
-                  }
-
-                  return Container(
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF0145A),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.remove, size: 14, color: Colors.white),
-                          onPressed: () => cartController.decrementQuantity(product.id),
-                          constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                          padding: EdgeInsets.zero,
-                        ),
-                        Text(
-                          '$qty',
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.add, size: 14, color: Colors.white),
-                          onPressed: () => cartController.addToCart(product),
-                          constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                          padding: EdgeInsets.zero,
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -484,13 +354,17 @@ class _SearchScreenState extends State<SearchScreen> {
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            mainAxisSpacing: 12,
+            mainAxisSpacing: 14,
             crossAxisSpacing: 12,
-            childAspectRatio: 0.65,
+            childAspectRatio: 0.70,
           ),
           itemCount: productController.products.take(4).length,
           itemBuilder: (context, index) {
-            return _buildProductSearchCard(productController.products[index]);
+            return ProductCard(
+              product: productController.products[index],
+              width: null,
+              imageHeight: 125,
+            );
           },
         ),
       ],
