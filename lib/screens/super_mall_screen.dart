@@ -59,13 +59,10 @@ class _SuperMallScreenState extends State<SuperMallScreen> {
                 // 1. SuperMall Header Bar
                 _buildSuperMallHeader(),
 
-                // 2. Global Offer Banner
-                const GlobalOfferBanner(),
-
-                // 3. Category Horizontal Tabs
+                // 2. Category Horizontal Tabs
                 _buildCategoryTabs(),
 
-                // 4. Products Grid & Featured Brand Carousel
+                // 3. Products Grid & Featured Brand Carousel
                 Expanded(
                   child: Obx(() {
                     final products = productController.getSuperMallProducts(_selectedCategory);
@@ -112,9 +109,9 @@ class _SuperMallScreenState extends State<SuperMallScreen> {
                               physics: const NeverScrollableScrollPhysics(),
                               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 2,
-                                mainAxisSpacing: 12,
+                                mainAxisSpacing: 14,
                                 crossAxisSpacing: 12,
-                                childAspectRatio: 0.65,
+                                childAspectRatio: 0.70,
                               ),
                               itemCount: products.length,
                               itemBuilder: (context, index) {
@@ -128,6 +125,9 @@ class _SuperMallScreenState extends State<SuperMallScreen> {
                 ),
               ],
             ),
+
+            // Global Offer Banner (Free Delivery bottom banner)
+            const GlobalOfferBanner(),
 
             // Floating Cart Banner
             const Positioned(

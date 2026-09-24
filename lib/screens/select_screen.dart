@@ -143,13 +143,10 @@ class _SelectScreenState extends State<SelectScreen> {
                 // 1. Premium Top Bar
                 _buildSelectTopBar(),
 
-                // 2. Global Offer Banner
-                const GlobalOfferBanner(),
-
-                // 3. Category Filter Tabs
+                // 2. Category Filter Tabs
                 _buildCategoryTabs(),
 
-                // 4. Scrollable Content (Carousel + Dietary Chips + Sort Bar + Grid)
+                // 3. Scrollable Content (Carousel + Dietary Chips + Sort Bar + Grid)
                 Expanded(
                   child: Obx(() {
                     final products = _getFilteredProducts();
@@ -222,9 +219,9 @@ class _SelectScreenState extends State<SelectScreen> {
                               physics: const NeverScrollableScrollPhysics(),
                               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 2,
-                                mainAxisSpacing: 12,
+                                mainAxisSpacing: 14,
                                 crossAxisSpacing: 12,
-                                childAspectRatio: 0.63,
+                                childAspectRatio: 0.70,
                               ),
                               itemCount: products.length,
                               itemBuilder: (context, index) {
@@ -238,6 +235,9 @@ class _SelectScreenState extends State<SelectScreen> {
                 ),
               ],
             ),
+
+            // Global Offer Banner (Free Delivery bottom banner)
+            const GlobalOfferBanner(),
 
             // Floating Cart Banner
             const Positioned(
